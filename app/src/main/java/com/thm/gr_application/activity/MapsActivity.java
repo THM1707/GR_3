@@ -85,6 +85,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationCallback mLocationCallback;
     private View mLocationButton;
     private DrawerLayout mDrawerLayout;
+    private SupportMapFragment mMapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,13 +106,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void mapAndPlaceFragmentInit() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+        if (mMapFragment != null) {
+            mMapFragment.getMapAsync(this);
         }
 
-        mLocationButton = mapFragment.getView().findViewById(Integer.parseInt("2"));
         findViewById(R.id.fab_my_location).setOnClickListener(this);
 
         if (!Places.isInitialized()) {
@@ -132,8 +132,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         initLocationRequest();
-        checkGps();
-
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -141,15 +139,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (locationList.size() > 0) {
                     Location location = locationList.get(locationList.size() - 1);
                     LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(currentLatLng,
-                            15.0f);
-                    mMap.moveCamera(update);
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 15.0f);
+                    mMap.animateCamera(update);
                 }
             }
         };
-
         settingMap();
-        getLocationPermission();
+        checkLocationPermission();
     }
 
     private void initLocationRequest() {
@@ -168,6 +164,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 task1.getResult(ApiException.class);
                 // All location settings are satisfied. The client can initialize location
                 // requests here.
+                updateMyLocationUI();
 
             } catch (ApiException exception) {
                 switch (exception.getStatusCode()) {
@@ -213,10 +210,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mDrawerLayout.openDrawer(Gravity.START);
                 break;
             case R.id.fab_my_location:
-                checkGps();
                 if (mMap != null) {
-                    if (mLocationButton != null) {
+                    if (isLocationPermissionGranted) {
                         mLocationButton.callOnClick();
+                    } else {
+                        requestLocationPermission();
                     }
                 }
             default:
@@ -232,6 +230,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
                         showDefaultLocation();
+                        break;
+                    case Activity.RESULT_OK:
+                        requestMyLocation();
                         break;
                     default:
                         break;
@@ -278,7 +279,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 isLocationPermissionGranted = grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                updateLocationUI();
+                if (isLocationPermissionGranted) {
+                    checkGps();
+                } else {
+                    showDefaultLocation();
+                }
             }
         }
     }
@@ -303,7 +308,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         } else if (id == R.id.menu_nav_setting) {
 
-        }else if (id == R.id.menu_nav_help) {
+        } else if (id == R.id.menu_nav_help) {
 
         } else if (id == R.id.menu_nav_contact) {
 
@@ -372,41 +377,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void getLocationPermission() {
+    private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted = true;
-            updateLocationUI();
+            mMap.setMyLocationEnabled(true);
+            mLocationButton = mMapFragment.getView().findViewById(Integer.parseInt("2"));
+            if (mLocationButton != null) {
+                mLocationButton.setVisibility(View.GONE);
+            }
+            checkGps();
         } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            requestLocationPermission();
+
         }
     }
 
-    private void updateLocationUI() {
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    }
+
+    private void updateMyLocationUI() {
         if (mMap == null) {
             return;
         }
         try {
-            if (isLocationPermissionGranted) {
-                mMap.setMyLocationEnabled(true);
-                if (mLocationButton != null) {
-                    mLocationButton.setVisibility(View.GONE);
-                }
-                requestMyLocation();
-            } else {
-                mMap.setMyLocationEnabled(false);
-                showDefaultLocation();
-            }
+            requestMyLocation();
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
 
     private void showDefaultLocation() {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
     }
 
     private void requestMyLocation() {
