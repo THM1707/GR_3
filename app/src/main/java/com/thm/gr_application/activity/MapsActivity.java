@@ -3,6 +3,7 @@ package com.thm.gr_application.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -49,6 +50,8 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.ParkingLotsResponse;
@@ -58,11 +61,13 @@ import com.thm.gr_application.utils.ImageUtils;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -72,7 +77,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String TAG = "MapsActivity";
     private static final float DEFAULT_ZOOM = 15.0f;
-    private static final String AUTH_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI0IiwiaWF0IjoxNTUwNDIwNTE4LCJleHAiOjE1NTEwMjUzMTh9.Z4X_g-Vw0V66w5SdUIYxzu7IIXMx40VUXHhDtC8zX0FcFJpQT-dbv5ICzfEqgrQIsWq4UerzuJvDRkSTDX97bg";
     private static final LatLng mDefaultLocation = new LatLng(21.0307162, 105.7756564);
     private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
     private boolean isLocationPermissionGranted;
@@ -86,16 +90,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private View mLocationButton;
     private DrawerLayout mDrawerLayout;
     private SupportMapFragment mMapFragment;
+    private String mToken;
+    private List<Long> mFavorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        setupVariables();
         initViews();
         mapAndPlaceFragmentInit();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         getExtrasFromIntent();
     }
+
+    private void setupVariables() {
+        mFavorites = getFavorites();
+     }
 
     private void initViews() {
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -120,12 +131,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getExtrasFromIntent() {
-        if (getIntent().getExtras() != null) {
-            String token = getIntent().getExtras().getString(Constants.EXTRA_TOKEN);
-            getParkingLotList(token);
-        } else {
-            getParkingLotList(AUTH_TOKEN);
-        }
+        mToken = getIntent().getStringExtra(Constants.EXTRA_TOKEN);
+        getParkingLotList(mToken);
     }
 
     @Override
@@ -241,7 +248,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AUTOCOMPLETE_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Place place = Autocomplete.getPlaceFromIntent(data);
-                    Toast.makeText(this, place.getLatLng() + "", Toast.LENGTH_SHORT).show();
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10.0f));
                 } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                     Toast.makeText(this, R.string.error_place_api, Toast.LENGTH_SHORT).show();
@@ -266,7 +272,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onMarkerClick(Marker marker) {
         ParkingLot p = mMarkerParkingLotMap.get(marker);
         Intent intent = new Intent(this, ParkingLotDetailsActivity.class);
-        intent.putExtra("parking_lot", p);
+        intent.putExtra(Constants.EXTRA_PARKING_LOT, p);
         startActivity(intent);
         return false;
     }
@@ -289,21 +295,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
         if (mFusedLocationProviderClient != null && mLocationCallback != null) {
             mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
         }
+        super.onDestroy();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         if (id == R.id.menu_nav_bookmark) {
-            // Handle the camera action
+            Intent intent = new
+                    Intent(MapsActivity.this, BookmarkActivity.class);
+            mFavorites = getFavorites();
+            List<ParkingLot> favoriteList = mParkingLotList.stream().filter(p -> mFavorites.contains(p.getId())).collect(Collectors.toList());
+            for (ParkingLot p: favoriteList) {
+                Log.d(TAG, "onNavigationItemSelected: " + p.getId());
+            }
+            intent.putExtra(Constants.EXTRA_FAVORITE, (Serializable) favoriteList);
+            startActivity(intent);
         } else if (id == R.id.menu_nav_car) {
 
         } else if (id == R.id.menu_nav_setting) {
@@ -354,6 +366,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void settingMap() {
+        mMap.getUiSettings().setMapToolbarEnabled(false);
         try {
             DateTime current = new DateTime();
             int hour = current.getHourOfDay();
@@ -423,5 +436,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    private List<Long> getFavorites(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        String json = sharedPreferences.getString(Constants.KEY_FAVORITE, null);
+        return new Gson().fromJson(json, new TypeToken<List<Long>>(){}.getType());
     }
 }

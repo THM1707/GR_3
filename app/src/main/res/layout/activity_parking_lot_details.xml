@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,20 +8,46 @@
     android:orientation="vertical"
     tools:context=".activity.ParkingLotDetailsActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/parking_lot" />
+        android:layout_height="300dp">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_details"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:elevation="4dp"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            tools:targetApi="lollipop" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/parking_lot"
+            tools:ignore="ContentDescription" />
+
+        <ImageButton
+            android:id="@+id/ib_favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@null"
+            android:src="@android:drawable/btn_star"
+            tools:ignore="ContentDescription" />
+    </RelativeLayout>
 
     <LinearLayout
-        android:paddingBottom="2dp"
-        android:paddingTop="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -30,29 +57,29 @@
             android:orientation="vertical">
 
             <TextView
-                android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:padding="5dp"
                 android:text="Capacity"
                 android:textSize="18sp" />
 
             <TextView
-                android:padding="5dp"
-                android:textColor="@color/blue"
-                android:textStyle="bold"
-                android:textSize="22sp"
                 android:id="@+id/tv_capacity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Capacity" />
+                android:padding="5dp"
+                android:text="Capacity"
+                android:textColor="@color/blue"
+                android:textSize="22sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <View
-            android:background="@color/divider"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_width="2dp" />
+            android:background="@color/divider" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -62,71 +89,76 @@
             android:orientation="vertical">
 
             <TextView
-                android:padding="5dp"
-                android:textSize="18sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Open Time" />
+                android:padding="5dp"
+                android:text="Open Time"
+                android:textSize="18sp" />
 
             <TextView
-                android:padding="5dp"
-                android:textColor="@color/black"
-                android:textSize="22sp"
-                android:textStyle="bold"
                 android:id="@+id/tv_open_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Open Time" />
+                android:padding="5dp"
+                android:text="Open Time"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
-        android:layout_height="10dp"
-        android:layout_width="match_parent" />
-    <TextView
-        android:textSize="20sp"
-        android:padding="5dp"
-        android:gravity="center"
-        android:text="Details"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <View
-        android:background="@color/divider"
-        android:layout_height="2dp"
-        android:layout_width="match_parent" />
-    <LinearLayout
-        android:orientation="horizontal"
+        android:layout_height="10dp"
+        android:background="@color/divider" />
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="Details"
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:padding="5dp">
 
         <TextView
-            android:gravity="center"
-            android:textSize="16sp"
-            android:text="Address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Address"
+            android:textSize="16sp" />
 
         <View
-            android:background="@color/divider"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_width="2dp" />
+            android:background="@color/divider" />
 
         <TextView
             android:id="@+id/tv_address"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:text="Address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="Address"
+            android:textSize="16sp" />
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_width="match_parent" />
+        android:background="@color/divider" />
 
 </LinearLayout>

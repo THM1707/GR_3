@@ -1,6 +1,7 @@
 package com.thm.gr_application.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -10,11 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.thm.gr_application.R;
 import com.thm.gr_application.payload.CredentialResponse;
 import com.thm.gr_application.payload.TestResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -61,6 +65,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Toast.makeText(LoginActivity.this, R.string.error_bad_credential, Toast.LENGTH_SHORT).show();
                         } else {
                             if (response.body() != null) {
+                                SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString(Constants.KEY_PASSWORD, password);
+                                editor.putString(Constants.KEY_USERNAME, username);
+                                editor.putString(Constants.KEY_TOKEN, "Bearer " + response.body().getAccessToken());
+                                List<Long> favorites = response.body().getFavorites();
+                                Gson gson = new Gson();
+                                String json = gson.toJson(favorites);
+                                editor.putString(Constants.KEY_FAVORITE, json);
+                                editor.apply();
                                 startMapActivity(response.body().getAccessToken());
                             }
                         }
