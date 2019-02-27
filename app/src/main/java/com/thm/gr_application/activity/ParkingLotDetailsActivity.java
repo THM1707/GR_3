@@ -2,11 +2,13 @@ package com.thm.gr_application.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,6 +20,7 @@ import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,10 +62,10 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("Favorite");
+            actionBar.setTitle("");
         }
         mImageButton = findViewById(R.id.ib_favorite);
-        mImageButton.setImageResource(isFavorite ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
+        mImageButton.setImageResource(isFavorite ? R.drawable.ic_favorite_on : R.drawable.ic_favorite_off);
         mImageButton.setOnClickListener(v -> {
             if (isFavorite) {
                 AppServiceClient.getMyApiInstance(this).removeFavorite(mToken, parkingLot.getId()).enqueue(new Callback<Void>() {
@@ -76,7 +79,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
 
                     }
                 });
-                mImageButton.setImageResource(android.R.drawable.btn_star_big_off);
+                mImageButton.setImageResource(R.drawable.ic_favorite_off);
             } else {
                 AppServiceClient.getMyApiInstance(this).addFavorite(mToken, parkingLot.getId()).enqueue(new Callback<Void>() {
                     @Override
@@ -89,7 +92,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
 
                     }
                 });
-                mImageButton.setImageResource(android.R.drawable.btn_star_big_on);
+                mImageButton.setImageResource(R.drawable.ic_favorite_on);
             }
             changeFavorite(mParkingLot, isFavorite);
             isFavorite = !isFavorite;
@@ -120,5 +123,13 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void nav(View view) {
+        String uriString = String.format(Locale.getDefault(), "google.navigation:q=%f,%f", mParkingLot.getLatitude(), mParkingLot.getLongitude());
+        Uri uri = Uri.parse(uriString);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
     }
 }

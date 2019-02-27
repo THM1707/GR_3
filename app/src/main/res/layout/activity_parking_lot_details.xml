@@ -37,7 +37,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:background="@null"
-            android:src="@android:drawable/btn_star"
+            android:src="@drawable/ic_favorite_off"
             tools:ignore="ContentDescription" />
     </RelativeLayout>
 
@@ -156,9 +156,9 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/divider" />
-
+    <Button
+        android:text="HIT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="nav"/>
 </LinearLayout>

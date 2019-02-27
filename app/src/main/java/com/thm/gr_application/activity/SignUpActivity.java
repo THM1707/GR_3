@@ -34,10 +34,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_sign_up:
-                EditText textName = findViewById(R.id.tv_name);
-                EditText textUsername = findViewById(R.id.tv_username);
-                EditText textEmail = findViewById(R.id.tv_email);
-                EditText textPassword = findViewById(R.id.tv_password);
+                EditText textName = findViewById(R.id.et_name);
+                EditText textUsername = findViewById(R.id.et_username);
+                EditText textEmail = findViewById(R.id.et_email);
+                EditText textPassword = findViewById(R.id.et_password);
                 String name = textName.getText().toString();
                 String username = textUsername.getText().toString();
                 String email = textEmail.getText().toString();
@@ -50,6 +50,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {
                         if (response.isSuccessful()) {
                             Toast.makeText(SignUpActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            onBackPressed();
                         } else {
                             try {
                                 JSONObject jObjError = new JSONObject(response.errorBody().string());

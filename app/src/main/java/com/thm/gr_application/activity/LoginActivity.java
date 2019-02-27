@@ -97,10 +97,5 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         intent.putExtra(Constants.EXTRA_TOKEN, "Bearer " + token);
         startActivity(intent);
     }
-
-    public void goToMap(View view) {
-        Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
-    }
 }
 

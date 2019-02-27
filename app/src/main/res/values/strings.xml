@@ -38,6 +38,11 @@
     <string name="title_slot">Slots</string>
     <string name="hint_address">Address here</string>
     <string name="hint_capacity">70</string>
+    <string name="prompt_register">Not an user? Register now</string>
+    <string name="prompt_name">Name</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_other">Others</string>
 
     <!-- Strings related to map -->
 

@@ -6,7 +6,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/menu_nav_bookmark"
-            android:icon="@drawable/ic_menu_bookmark"
+            android:icon="@drawable/ic_favorite_on"
             android:title="@string/menu_bookmark" />
         <item
             android:id="@+id/menu_nav_car"
@@ -18,7 +18,7 @@
             android:title="@string/menu_setting" />
     </group>
 
-    <item android:title="Others">
+    <item android:title="@string/prompt_other">
         <menu>
             <item
                 android:id="@+id/menu_nav_help"

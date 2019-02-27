@@ -248,7 +248,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AUTOCOMPLETE_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Place place = Autocomplete.getPlaceFromIntent(data);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10.0f));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
                 } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                     Toast.makeText(this, R.string.error_place_api, Toast.LENGTH_SHORT).show();
                 } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
@@ -310,7 +310,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Intent intent = new
                     Intent(MapsActivity.this, BookmarkActivity.class);
             mFavorites = getFavorites();
-            List<ParkingLot> favoriteList = mParkingLotList.stream().filter(p -> mFavorites.contains(p.getId())).collect(Collectors.toList());
+            List<ParkingLot> favoriteList = new ArrayList<>();
+            for (ParkingLot p: mParkingLotList) {
+                if (mFavorites.contains(p.getId())){
+                    favoriteList.add(p);
+                }
+            }
             for (ParkingLot p: favoriteList) {
                 Log.d(TAG, "onNavigationItemSelected: " + p.getId());
             }
