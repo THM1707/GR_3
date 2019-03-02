@@ -51,6 +51,8 @@
         <item>7 seats</item>
         <item>16 seats</item>
     </string-array>
+    <string name="title_activity_manager">ManagerActivity</string>
 
-
+    <string name="role_user">user</string>
+    <string name="role_manager">manager</string>
 </resources>

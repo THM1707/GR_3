@@ -15,9 +15,18 @@ import com.thm.gr_application.model.Car;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableCompletableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
+    private static final String TAG = "CarAdapter";
     private Context mContext;
     private List<Car> mCarList;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     public CarAdapter(Context context, List<Car> carList) {
         mContext = context;
@@ -27,6 +36,11 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
     public void setCarList(List<Car> carList) {
         mCarList = carList;
         notifyDataSetChanged();
+    }
+
+    public void addCar(Car car) {
+        mCarList.add(car);
+        notifyItemInserted(mCarList.size() - 1);
     }
 
     @NonNull
@@ -41,13 +55,30 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
         Car car = mCarList.get(i);
         carViewHolder.mPlateText.setText(car.getLicensePlate());
         carViewHolder.setListener((v, position) -> {
-            mCarList.remove(position);
-            notifyDataSetChanged();
-            new Thread(() -> {
-                CarDatabase database = CarDatabase.getDatabase(mContext);
-                database.getCarDao().delete(car);
-            }).start();
+            Disposable disposable = Completable.fromAction(() -> CarDatabase.getDatabase(mContext).getCarDao().delete(car.getLicensePlate()))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableCompletableObserver() {
+                        @Override
+                        public void onComplete() {
+                            mCarList.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, mCarList.size());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+            mCompositeDisposable.add(disposable);
         });
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull CarViewHolder holder) {
+        mCompositeDisposable.clear();
+        super.onViewRecycled(holder);
     }
 
     @Override
