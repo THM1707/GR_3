@@ -15,35 +15,84 @@
         android:textColor="@color/white"
         android:textSize="18sp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/rubik"
+        android:padding="8dp"
+        android:text="@string/title_license_plate"
+        android:textSize="20sp" />
+
     <android.support.design.widget.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp">
 
         <android.support.design.widget.TextInputEditText
-            android:inputType="text"
             android:id="@+id/et_plate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:inputType="text"
             android:paddingStart="10dp"
             android:paddingEnd="10dp" />
     </android.support.design.widget.TextInputLayout>
 
-    <Spinner
-        android:id="@+id/spinner_seat"
-        android:layout_width="50dp"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"/>
+        android:layout_gravity="start"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/rubik"
+        android:padding="8dp"
+        android:text="@string/title_car_type"
+        android:textSize="20sp" />
+
+    <RadioGroup
+        android:id="@+id/rg_car_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <RadioButton
+            android:id="@+id/rb_car"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="@drawable/bg_radio_button_car"
+            android:button="@android:color/transparent"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/rb_van"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="32dp"
+            android:background="@drawable/bg_radio_button_van"
+            android:button="@android:color/transparent" />
+
+        <RadioButton
+            android:id="@+id/rb_bus"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="32dp"
+            android:background="@drawable/bg_radio_button_bus"
+            android:button="@android:color/transparent" />
+    </RadioGroup>
 
     <Button
         android:id="@+id/bt_add_car"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimaryDark"
         android:text="@string/action_add"
         android:textColor="@color/white"
         android:textSize="18sp" />

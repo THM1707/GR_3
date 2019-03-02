@@ -41,6 +41,8 @@
                 android:showDividers="middle">
 
                 <ImageButton
+                    android:clickable="true"
+                    android:focusable="true"
                     android:id="@+id/bt_navigation_drawer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -48,7 +50,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_menu"
+                    app:srcCompat="@drawable/ic_menu"
                     tools:ignore="ContentDescription" />
 
                 <Button
@@ -72,7 +74,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="30dp"
             android:layout_marginBottom="30dp"
-            android:src="@drawable/ic_navigation"
+            app:srcCompat="@drawable/ic_navigation"
             app:backgroundTint="@color/white" />
     </RelativeLayout>
 

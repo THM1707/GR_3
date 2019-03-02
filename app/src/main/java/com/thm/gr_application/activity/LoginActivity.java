@@ -66,8 +66,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             @Override
                             public void onSuccess(CredentialResponse credentialResponse) {
                                 mProgressView.setVisibility(View.INVISIBLE);
-                                if (credentialResponse.getRole().equals(getString(R.string.role_user))){
-                                    storeValues(username, password, credentialResponse.getAccessToken(), credentialResponse.getFavorites());
+                                storeValues(username, password, credentialResponse.getAccessToken(), credentialResponse.getFavorites(), credentialResponse.getRole());
+                                if (credentialResponse.getRole().equals(getString(R.string.role_user))) {
                                     startMapActivity(credentialResponse.getAccessToken());
                                 } else {
                                     startManagerActivity(credentialResponse.getProperty());
@@ -93,11 +93,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void startManagerActivity(ParkingLot property) {
         Intent intent = new Intent(this, ManagerActivity.class);
+        intent.putExtra(Constants.EXTRA_PROPERTY, property);
         startActivity(intent);
         finish();
     }
 
-    private void storeValues(String username, String password, String accessToken, List<Long> favorites) {
+    private void storeValues(String username, String password, String accessToken, List<Long> favorites, String role) {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Constants.KEY_PASSWORD, password);
@@ -105,6 +106,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         editor.putString(Constants.KEY_TOKEN, "Bearer " + accessToken);
         String json = new Gson().toJson(favorites);
         editor.putString(Constants.KEY_FAVORITE, json);
+        editor.putString(Constants.KEY_ROLE, role);
         editor.apply();
     }
 
@@ -121,4 +123,3 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         finish();
     }
 }
-

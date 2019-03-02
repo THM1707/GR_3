@@ -34,7 +34,7 @@
     <string name="menu_car">Cars</string>
     <string name="menu_setting">Setting</string>
     <string name="menu_help">Help</string>
-    <string name="menu_contact">Contact</string>
+    <string name="menu_manager">Manager</string>
     <string name="title_slot">Slots</string>
     <string name="hint_address">Address here</string>
     <string name="hint_capacity">70</string>
@@ -55,4 +55,6 @@
 
     <string name="role_user">user</string>
     <string name="role_manager">manager</string>
+    <string name="title_car_type">Car type</string>
+    <string name="title_license_plate">License plate</string>
 </resources>

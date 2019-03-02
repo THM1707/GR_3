@@ -10,6 +10,11 @@ public class Constants {
     public static final String KEY_PASSWORD = "shared_password";
     public static final String KEY_TOKEN = "shared_token";
     public static final String EXTRA_IS_FAVORITE = "extra_is_favorite";
-    public static final String KEY_FAVORITE = "shred_pref_favorite";
+    public static final String KEY_FAVORITE = "shared_pref_favorite";
     public static final String EXTRA_FAVORITE = "extra_favorite";
+    public static final String EXTRA_PROPERTY = "extra_property";
+    public static final String KEY_ROLE = "shared_pref_role";
+    public static final int CAR_TYPE_CAR = 0;
+    public static final int CAR_TYPE_TRUCK = 1;
+    public static final int CAR_TYPE_BUS = 2;
 }

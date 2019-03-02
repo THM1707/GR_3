@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.thm.gr_application.R;
 import com.thm.gr_application.adapter.CarAdapter;
 import com.thm.gr_application.data.CarDatabase;
 import com.thm.gr_application.model.Car;
+import com.thm.gr_application.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +37,6 @@ import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class CarActivity extends AppCompatActivity {
-    private Spinner mSeatSpinner;
     private List<Car> mCarList = new ArrayList<>();
     private CarDatabase mCarDatabase;
     private EditText mLicenseText;
@@ -113,15 +114,25 @@ public class CarActivity extends AppCompatActivity {
     private void showInsertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_car, null);
-        mSeatSpinner = view.findViewById(R.id.spinner_seat);
         mLicenseText = view.findViewById(R.id.et_plate);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.car_seat, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSeatSpinner.setAdapter(adapter);
+        RadioGroup radioGroup = view.findViewById(R.id.rg_car_type);
+
         builder.setView(view);
         AlertDialog dialog = builder.create();
         view.findViewById(R.id.bt_add_car).setOnClickListener(v -> {
-            Car car = new Car(4, mLicenseText.getText().toString());
+            int checked = radioGroup.getCheckedRadioButtonId();
+            int type = Constants.CAR_TYPE_CAR;
+            switch (checked) {
+                case R.id.rb_car:
+                    break;
+                case R.id.rb_bus:
+                    type = Constants.CAR_TYPE_BUS;
+                    break;
+                case R.id.rb_van:
+                    type = Constants.CAR_TYPE_TRUCK;
+                    break;
+            }
+            Car car = new Car(type, mLicenseText.getText().toString());
             Disposable disposable = Completable.fromAction(() -> mCarDatabase.getCarDao().insert(car))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

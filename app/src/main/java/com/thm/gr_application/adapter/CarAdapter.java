@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.thm.gr_application.R;
 import com.thm.gr_application.data.CarDatabase;
 import com.thm.gr_application.model.Car;
+import com.thm.gr_application.utils.Constants;
 
 import java.util.List;
 
@@ -53,6 +55,20 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull CarViewHolder carViewHolder, int i) {
         Car car = mCarList.get(i);
+        switch (car.getSeatNumber()) {
+            case Constants.CAR_TYPE_CAR:
+                carViewHolder.mCarImage.setImageResource(R.drawable.ic_car);
+                break;
+            case Constants.CAR_TYPE_BUS:
+                carViewHolder.mCarImage.setImageResource(R.drawable.ic_bus);
+                break;
+            case Constants.CAR_TYPE_TRUCK:
+                carViewHolder.mCarImage.setImageResource(R.drawable.ic_van);
+                break;
+            default:
+                carViewHolder.mCarImage.setImageResource(R.drawable.ic_car);
+                break;
+        }
         carViewHolder.mPlateText.setText(car.getLicensePlate());
         carViewHolder.setListener((v, position) -> {
             Disposable disposable = Completable.fromAction(() -> CarDatabase.getDatabase(mContext).getCarDao().delete(car.getLicensePlate()))
@@ -89,10 +105,12 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
     public class CarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mPlateText;
         private ImageButton mCloseButton;
+        private ImageView mCarImage;
         private CarClickListener mCarClickListener;
 
         CarViewHolder(@NonNull View itemView) {
             super(itemView);
+            mCarImage = itemView.findViewById(R.id.iv_car);
             mCloseButton = itemView.findViewById(R.id.ib_delete_car);
             mCloseButton.setOnClickListener(this);
             mPlateText = itemView.findViewById(R.id.tv_plate);

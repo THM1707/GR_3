@@ -10,7 +10,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -19,6 +18,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -67,17 +67,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.HttpException;
-import retrofit2.Response;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -121,6 +117,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.bt_place_search).setOnClickListener(this);
         NavigationView navigationView = findViewById(R.id.nav_map);
         navigationView.setNavigationItemSelectedListener(this);
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        String role = sharedPreferences.getString(Constants.KEY_ROLE, null);
+        if (role != null && !role.equals(getString(R.string.role_manager))) {
+            Menu menu = navigationView.getMenu();
+            MenuItem managerItem = menu.findItem(R.id.menu_nav_manager);
+            managerItem.setVisible(false);
+        }
     }
 
     private void mapAndPlaceFragmentInit() {
@@ -335,8 +338,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         } else if (id == R.id.menu_nav_help) {
 
-        } else if (id == R.id.menu_nav_contact) {
-
+        } else if (id == R.id.menu_nav_manager) {
+            finish();
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
