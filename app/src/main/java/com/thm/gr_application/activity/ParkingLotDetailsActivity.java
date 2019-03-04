@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -23,11 +22,6 @@ import com.thm.gr_application.utils.Constants;
 import java.util.List;
 import java.util.Locale;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableCompletableObserver;
-import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,7 +33,6 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
     private String mToken;
     private ParkingLot mParkingLot;
     private List<Long> mFavorites;
-    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,40 +68,34 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
         mImageButton.setImageResource(isFavorite ? R.drawable.ic_favorite_on : R.drawable.ic_favorite_off);
         mImageButton.setOnClickListener(v -> {
             if (isFavorite) {
-                Disposable disposable = AppServiceClient.getMyApiInstance(this).removeFavorite(mToken, parkingLot.getId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableCompletableObserver() {
-                            @Override
-                            public void onComplete() {
-                                mImageButton.setImageResource(R.drawable.ic_favorite_off);
-                                changeFavorite(mParkingLot, isFavorite);
-                            }
+                AppServiceClient.getMyApiInstance(this).removeFavorite(mToken, parkingLot.getId()).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
 
-                            @Override
-                            public void onError(Throwable e) {
-                                Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                mCompositeDisposable.add(disposable);
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+
+                    }
+                });
+                mImageButton.setImageResource(R.drawable.ic_favorite_off);
             } else {
-                Disposable disposable = AppServiceClient.getMyApiInstance(this).addFavorite(mToken, parkingLot.getId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(new DisposableCompletableObserver() {
-                            @Override
-                            public void onComplete() {
-                                mImageButton.setImageResource(R.drawable.ic_favorite_on);
-                                changeFavorite(mParkingLot, isFavorite);
-                            }
+                AppServiceClient.getMyApiInstance(this).addFavorite(mToken, parkingLot.getId()).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
 
-                            @Override
-                            public void onError(Throwable e) {
-                                Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                mCompositeDisposable.add(disposable);
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+
+                    }
+                });
+                mImageButton.setImageResource(R.drawable.ic_favorite_on);
             }
+            changeFavorite(mParkingLot, isFavorite);
+            isFavorite = !isFavorite;
         });
         textCapacity.setText(String.valueOf(parkingLot.getCapacity()));
         textAddress.setText(parkingLot.getAddress());
@@ -126,7 +113,6 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Constants.KEY_FAVORITE, json);
         editor.apply();
-        isFavorite = !isFavorite;
     }
 
     @Override
@@ -137,12 +123,6 @@ public class ParkingLotDetailsActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onStop() {
-        mCompositeDisposable.clear();
-        super.onStop();
     }
 
     public void nav(View view) {

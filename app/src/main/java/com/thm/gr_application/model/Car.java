@@ -4,8 +4,6 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-import java.util.Objects;
-
 @Entity(tableName = "car")
 public class Car {
     @PrimaryKey(autoGenerate = true)
@@ -45,20 +43,5 @@ public class Car {
 
     public void setLicensePlate(String licensePlate) {
         mLicensePlate = licensePlate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Car car = (Car) o;
-        return mId == car.mId &&
-                seatNumber == car.seatNumber &&
-                Objects.equals(mLicensePlate, car.mLicensePlate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(mId, seatNumber, mLicensePlate);
     }
 }

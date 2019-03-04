@@ -2,7 +2,6 @@ package com.thm.gr_application.payload;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thm.gr_application.model.ParkingLot;
 
 import java.util.List;
 
@@ -18,10 +17,6 @@ public class CredentialResponse {
     @Expose
     @SerializedName("favorites")
     private List<Long> favorites;
-
-    @Expose
-    @SerializedName("property")
-    private ParkingLot property;
 
     public String getAccessToken() {
         return accessToken;
@@ -45,13 +40,5 @@ public class CredentialResponse {
 
     public void setFavorites(List<Long> favorites) {
         this.favorites = favorites;
-    }
-
-    public ParkingLot getProperty() {
-        return property;
-    }
-
-    public void setProperty(ParkingLot property) {
-        this.property = property;
     }
 }

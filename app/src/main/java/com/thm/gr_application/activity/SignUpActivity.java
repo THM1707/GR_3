@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.thm.gr_application.R;
@@ -14,35 +13,21 @@ import com.thm.gr_application.retrofit.AppServiceClient;
 
 import org.json.JSONObject;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.observers.DisposableSingleObserver;
-import io.reactivex.schedulers.Schedulers;
-import retrofit2.HttpException;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
-
-    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        initViews();
+        setupViews();
     }
 
-    private void initViews() {
+    private void setupViews() {
         findViewById(R.id.bt_sign_up).setOnClickListener(this);
-        mProgressBar = findViewById(R.id.progress_sign_up);
-    }
-
-    @Override
-    protected void onStop() {
-        mCompositeDisposable.clear();
-        super.onStop();
     }
 
     @Override
@@ -59,36 +44,28 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 String password = textPassword.getText().toString();
 
                 final SignUpRequest request = new SignUpRequest(name, username, email, password);
-                Disposable disposable = AppServiceClient.getMyApiInstance(SignUpActivity.this).signUp(request)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnSubscribe(disposable1 -> mProgressBar.setVisibility(View.VISIBLE))
-                        .subscribeWith(new DisposableSingleObserver<SignUpResponse>() {
-                            @Override
-                            public void onSuccess(SignUpResponse signUpResponse) {
-                                mProgressBar.setVisibility(View.INVISIBLE);
-                                Toast.makeText(SignUpActivity.this, signUpResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                                onBackPressed();
+                System.out.println(request);
+                AppServiceClient.getMyApiInstance(SignUpActivity.this).signUp(request).enqueue(new Callback<SignUpResponse>() {
+                    @Override
+                    public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(SignUpActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            onBackPressed();
+                        } else {
+                            try {
+                                JSONObject jObjError = new JSONObject(response.errorBody().string());
+                                Toast.makeText(SignUpActivity.this, jObjError.getString("message"), Toast.LENGTH_SHORT).show();
+                            } catch (Exception e) {
+                                Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
+                        }
+                    }
 
-                            @Override
-                            public void onError(Throwable e) {
-                                mProgressBar.setVisibility(View.INVISIBLE);
-                                if (e instanceof HttpException) {
-                                    try {
-                                        JSONObject jObjError = new JSONObject(((HttpException) e).response().errorBody().string());
-                                        Toast.makeText(SignUpActivity.this, jObjError.getString("message"), Toast.LENGTH_SHORT).show();
-                                    } catch (Exception ex) {
-                                        Toast.makeText(SignUpActivity.this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    Toast.makeText(SignUpActivity.this, R.string.error_sign_in, Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                mCompositeDisposable.add(disposable);
-                break;
-            default:
+                    @Override
+                    public void onFailure(Call<SignUpResponse> call, Throwable t) {
+                        Toast.makeText(SignUpActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 break;
         }
     }

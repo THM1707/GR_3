@@ -9,18 +9,15 @@ import com.thm.gr_application.model.Car;
 
 import java.util.List;
 
-import io.reactivex.Single;
-
-
 @Dao
 public interface CarDao {
 
     @Query("SELECT * FROM car")
-    Single<List<Car>> getAll();
+    List<Car> getAll();
 
     @Insert
     void insert(Car car);
 
-    @Query("DELETE FROM car WHERE license_plate = :plate")
-    int delete(String plate);
+    @Delete
+    void delete(Car car);
 }

@@ -7,22 +7,15 @@
     android:orientation="vertical"
     tools:context=".activity.SignUpActivity">
 
-    <!--<ImageView-->
-    <!--android:id="@+id/iv_icon"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="70dp"-->
-    <!--android:layout_marginTop="40dp"-->
-    <!--android:paddingLeft="20dp"-->
-    <!--android:paddingRight="20dp"-->
-    <!--android:src="@drawable/ic_logo"-->
-    <!--tools:ignore="ContentDescription" />-->
-
-    <ProgressBar
-        android:id="@+id/progress_sign_up"
+    <ImageView
+        android:id="@+id/iv_icon"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_marginTop="40dp"
-        android:visibility="invisible" />
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:src="@drawable/ic_logo"
+        tools:ignore="ContentDescription" />
 
     <android.support.design.widget.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
