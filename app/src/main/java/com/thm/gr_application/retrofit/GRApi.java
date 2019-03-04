@@ -6,6 +6,8 @@ import com.thm.gr_application.payload.ParkingLotsResponse;
 import com.thm.gr_application.payload.SignUpRequest;
 import com.thm.gr_application.payload.SignUpResponse;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -17,14 +19,14 @@ import retrofit2.http.Query;
 
 public interface GRApi {
     @POST("api/auth/signin")
-    Call<CredentialResponse> login(@Query("usernameOrEmail") String username,
-                                   @Query("password") String password);
+    Single<CredentialResponse> login(@Query("usernameOrEmail") String username,
+                                     @Query("password") String password);
 
     @POST("api/auth/signup")
-    Call<SignUpResponse> signUp(@Body SignUpRequest request);
+    Single<SignUpResponse> signUp(@Body SignUpRequest request);
 
     @GET("api/parking_lot/all")
-    Call<ParkingLotsResponse> getParkingLots(@Header("Authorization") String authToken);
+    Single<ParkingLotsResponse> getParkingLots(@Header("Authorization") String authToken);
 
     @POST("api/parking_lot/in")
     Call<ParkingLotsResponse> getParkingLotsIn(@Header("Authorization") String authToken,
@@ -34,8 +36,8 @@ public interface GRApi {
     Call<ParkingLotsResponse> getFavorite(@Header("Authorization") String authToken);
 
     @PUT("api/favorite/remove/{id}")
-    Call<Void> removeFavorite(@Header("Authorization") String authToken, @Path("id") Long id);
+    Completable removeFavorite(@Header("Authorization") String authToken, @Path("id") Long id);
 
     @PUT("api/favorite/add/{id}")
-    Call<Void> addFavorite(@Header("Authorization") String authToken, @Path("id") Long id);
+    Completable addFavorite(@Header("Authorization") String authToken, @Path("id") Long id);
 }
