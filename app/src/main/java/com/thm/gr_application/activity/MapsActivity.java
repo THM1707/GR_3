@@ -69,8 +69,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
@@ -92,6 +98,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private SupportMapFragment mMapFragment;
     private String mToken;
     private List<Long> mFavorites;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +113,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void setupVariables() {
         mFavorites = getFavorites();
-     }
+    }
 
     private void initViews() {
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -311,18 +318,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Intent(MapsActivity.this, BookmarkActivity.class);
             mFavorites = getFavorites();
             List<ParkingLot> favoriteList = new ArrayList<>();
-            for (ParkingLot p: mParkingLotList) {
-                if (mFavorites.contains(p.getId())){
+            for (ParkingLot p : mParkingLotList) {
+                if (mFavorites.contains(p.getId())) {
                     favoriteList.add(p);
                 }
             }
-            for (ParkingLot p: favoriteList) {
+            for (ParkingLot p : favoriteList) {
                 Log.d(TAG, "onNavigationItemSelected: " + p.getId());
             }
             intent.putExtra(Constants.EXTRA_FAVORITE, (Serializable) favoriteList);
             startActivity(intent);
         } else if (id == R.id.menu_nav_car) {
-
+            Intent intent = new Intent(MapsActivity.this, CarActivity.class);
+            startActivity(intent);
         } else if (id == R.id.menu_nav_setting) {
 
         } else if (id == R.id.menu_nav_help) {
@@ -346,28 +354,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getParkingLotList(String token) {
-        AppServiceClient.getMyApiInstance(this).getParkingLots(token).enqueue(new Callback<ParkingLotsResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<ParkingLotsResponse> call, @NonNull Response<ParkingLotsResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    mParkingLotList = response.body().getData();
-                    if (mMap != null) {
-                        createMarkers();
-                        isMarkersReady = true;
+        Disposable disposable = AppServiceClient.getMyApiInstance(this).getParkingLots(token)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<ParkingLotsResponse>() {
+                    @Override
+                    public void onSuccess(ParkingLotsResponse parkingLotsResponse) {
+                        mParkingLotList = parkingLotsResponse.getData();
+                        if (mMap != null) {
+                            createMarkers();
+                            isMarkersReady = true;
+                        }
                     }
-                } else if (!response.isSuccessful()) {
-                    if (response.code() == 401) {
-                        Toast.makeText(MapsActivity.this, R.string.error_session, Toast.LENGTH_SHORT).show();
-                    }
-                    Toast.makeText(MapsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-                }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<ParkingLotsResponse> call, @Nullable Throwable t) {
-                Toast.makeText(MapsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        if (e instanceof HttpException) {
+                            if (((HttpException) e).code() == 401) {
+                                Toast.makeText(MapsActivity.this, R.string.error_session, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MapsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(MapsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        mCompositeDisposable.add(disposable);
+    }
+
+    @Override
+    protected void onStop() {
+        mCompositeDisposable.clear();
+        super.onStop();
     }
 
     private void settingMap() {
@@ -443,9 +462,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private List<Long> getFavorites(){
+    private List<Long> getFavorites() {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         String json = sharedPreferences.getString(Constants.KEY_FAVORITE, null);
-        return new Gson().fromJson(json, new TypeToken<List<Long>>(){}.getType());
+        return new Gson().fromJson(json, new TypeToken<List<Long>>() {
+        }.getType());
     }
 }

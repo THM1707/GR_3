@@ -7,7 +7,7 @@ import android.content.Context;
 
 import com.thm.gr_application.model.Car;
 
-@Database(entities = {Car.class}, version = 1)
+@Database(entities = {Car.class}, version = 1, exportSchema = false)
 public abstract class CarDatabase extends RoomDatabase {
     public abstract CarDao getCarDao();
 
