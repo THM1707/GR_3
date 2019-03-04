@@ -43,14 +43,8 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_other">Others</string>
-    <string name="prompt_insert">Insert</string>
-    <string name="prompt_add_vehicle">Add Vehicle</string>
-    <string name="action_add">Add</string>
-    <string-array name="car_seat">
-        <item>4 seats</item>
-        <item>7 seats</item>
-        <item>16 seats</item>
-    </string-array>
+
+    <!-- Strings related to map -->
 
 
 </resources>
