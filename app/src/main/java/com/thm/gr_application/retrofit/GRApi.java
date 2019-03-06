@@ -1,6 +1,7 @@
 package com.thm.gr_application.retrofit;
 
 import com.thm.gr_application.payload.CredentialResponse;
+import com.thm.gr_application.payload.MessageResponse;
 import com.thm.gr_application.payload.ParkingLotInRequest;
 import com.thm.gr_application.payload.ParkingLotsResponse;
 import com.thm.gr_application.payload.SignUpRequest;
@@ -18,12 +19,17 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface GRApi {
-    @POST("api/auth/signin")
+    @POST("api/auth/signIn")
     Single<CredentialResponse> login(@Query("usernameOrEmail") String username,
                                      @Query("password") String password);
 
-    @POST("api/auth/signup")
+    @POST("api/auth/signUp")
     Single<SignUpResponse> signUp(@Body SignUpRequest request);
+
+    @POST("api/auth/changePassword")
+    Single<MessageResponse> changePassword(@Header("Authorization") String authToken,
+                                           @Query("oldPassword") String oldPassword,
+                                           @Query("newPassword") String newPassword);
 
     @GET("api/parking_lot/all")
     Single<ParkingLotsResponse> getParkingLots(@Header("Authorization") String authToken);

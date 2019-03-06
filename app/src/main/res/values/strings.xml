@@ -53,8 +53,13 @@
     </string-array>
     <string name="title_activity_manager">ManagerActivity</string>
 
-    <string name="role_user">user</string>
-    <string name="role_manager">manager</string>
+    <string name="role_user">ROLE_USER</string>
+    <string name="role_manager">ROLE_MANAGER</string>
     <string name="title_car_type">Car type</string>
     <string name="title_license_plate">License plate</string>
+    <string name="hint_old_password">Old password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="prompt_change_password">Change password</string>
+    <string name="prompt_logout">Logout</string>
+    <string name="prompt_condition_password">* At least 6 characters</string>
 </resources>

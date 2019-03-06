@@ -9,17 +9,7 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -52,6 +42,16 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.ParkingLotsResponse;
@@ -68,6 +68,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -75,7 +79,7 @@ import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.HttpException;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener, Drawer.OnDrawerItemClickListener {
 
     private static final String TAG = "MapsActivity";
     private static final float DEFAULT_ZOOM = 15.0f;
@@ -90,9 +94,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private View mLocationButton;
-    private DrawerLayout mDrawerLayout;
+    private Drawer mDrawer;
     private SupportMapFragment mMapFragment;
-    private String mToken;
     private List<Long> mFavorites;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -112,17 +115,73 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void initViews() {
-        mDrawerLayout = findViewById(R.id.drawer_layout);
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
-        findViewById(R.id.bt_place_search).setOnClickListener(this);
-        NavigationView navigationView = findViewById(R.id.nav_map);
-        navigationView.setNavigationItemSelectedListener(this);
+        findViewById(R.id.tv_place_search).setOnClickListener(this);
+        setupNavigationDrawer();
+    }
+
+    private void setupNavigationDrawer() {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         String role = sharedPreferences.getString(Constants.KEY_ROLE, null);
-        if (role != null && !role.equals(getString(R.string.role_manager))) {
-            Menu menu = navigationView.getMenu();
-            MenuItem managerItem = menu.findItem(R.id.menu_nav_manager);
-            managerItem.setVisible(false);
+        String username = sharedPreferences.getString(Constants.KEY_USERNAME, null);
+        String email = sharedPreferences.getString(Constants.KEY_EMAIL, null);
+        PrimaryDrawerItem bookmarkItem =
+                new PrimaryDrawerItem()
+                        .withIdentifier(Constants.MAP_ITEM_BOOKMARK)
+                        .withName("Bookmark")
+                        .withIcon(R.drawable.ic_favorite_on);
+        PrimaryDrawerItem carItem =
+                new PrimaryDrawerItem()
+                        .withIdentifier(Constants.MAP_ITEM_CAR)
+                        .withName("Car")
+                        .withIcon(R.drawable.ic_car);
+        SecondaryDrawerItem helpItem =
+                new SecondaryDrawerItem()
+                        .withIdentifier(Constants.MAP_ITEM_HELP)
+                        .withName("Help");
+        SecondaryDrawerItem managerItem =
+                new SecondaryDrawerItem()
+                        .withIdentifier(Constants.MAP_ITEM_MANAGER)
+                        .withName("Manager");
+
+        AccountHeader headerResult =
+                new AccountHeaderBuilder()
+                        .withActivity(this)
+                        .withHeaderBackground(R.drawable.login_background)
+                        .addProfiles(
+                                new ProfileDrawerItem().withName(username).withEmail(email).withIcon(getResources().getDrawable(R.drawable.default_user))
+                        )
+                        .withOnAccountHeaderProfileImageListener(new AccountHeader.OnAccountHeaderProfileImageListener() {
+                            @Override
+                            public boolean onProfileImageClick(View view, IProfile profile, boolean current) {
+                                Intent intent = new Intent(MapsActivity.this, AccountManagementActivity.class);
+                                startActivity(intent);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onProfileImageLongClick(View view, IProfile profile, boolean current) {
+                                return false;
+                            }
+                        })
+                        .withSelectionListEnabledForSingleProfile(false)
+                        .build();
+
+        mDrawer = new DrawerBuilder()
+                .withAccountHeader(headerResult)
+                .withActivity(this)
+                .withSelectedItem(-1)
+                .addDrawerItems(
+                        bookmarkItem,
+                        carItem,
+                        new DividerDrawerItem(),
+                        helpItem
+                )
+                .withOnDrawerItemClickListener(this)
+                .build();
+        findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
+        if (role != null && role.equals(getString(R.string.role_manager))) {
+            mDrawer.addItem(managerItem);
         }
     }
 
@@ -141,8 +200,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getExtrasFromIntent() {
-        mToken = getIntent().getStringExtra(Constants.EXTRA_TOKEN);
-        getParkingLotList(mToken);
+        String token = getIntent().getStringExtra(Constants.EXTRA_TOKEN);
+        getParkingLotList(token);
     }
 
     @Override
@@ -213,7 +272,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bt_place_search:
+            case R.id.tv_place_search:
                 // Set the fields to specify which types of place data to return.
                 List<Place.Field> fields = Collections.singletonList(Place.Field.LAT_LNG);
                 // Start the autocomplete intent.
@@ -224,7 +283,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
                 break;
             case R.id.bt_navigation_drawer:
-                mDrawerLayout.openDrawer(Gravity.START);
+                if (!mDrawer.isDrawerOpen()) {
+                    mDrawer.openDrawer();
+                }
                 break;
             case R.id.fab_my_location:
                 if (mMap != null) {
@@ -312,45 +373,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onDestroy();
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.menu_nav_bookmark) {
-            Intent intent = new
-                    Intent(MapsActivity.this, BookmarkActivity.class);
-            mFavorites = getFavorites();
-            List<ParkingLot> favoriteList = new ArrayList<>();
-            for (ParkingLot p : mParkingLotList) {
-                if (mFavorites.contains(p.getId())) {
-                    favoriteList.add(p);
-                }
-            }
-            for (ParkingLot p : favoriteList) {
-                Log.d(TAG, "onNavigationItemSelected: " + p.getId());
-            }
-            intent.putExtra(Constants.EXTRA_FAVORITE, (Serializable) favoriteList);
-            startActivity(intent);
-        } else if (id == R.id.menu_nav_car) {
-            Intent intent = new Intent(MapsActivity.this, CarActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.menu_nav_setting) {
-
-        } else if (id == R.id.menu_nav_help) {
-
-        } else if (id == R.id.menu_nav_manager) {
-            finish();
-        }
-
-        mDrawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
+        if (mDrawer.isDrawerOpen()) {
+            mDrawer.closeDrawer();
         } else {
             super.onBackPressed();
         }
@@ -470,5 +497,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String json = sharedPreferences.getString(Constants.KEY_FAVORITE, null);
         return new Gson().fromJson(json, new TypeToken<List<Long>>() {
         }.getType());
+    }
+
+    @Override
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        long id = drawerItem.getIdentifier();
+        if (id == Constants.MAP_ITEM_BOOKMARK) {
+            Intent intent = new
+                    Intent(MapsActivity.this, BookmarkActivity.class);
+            mFavorites = getFavorites();
+            List<ParkingLot> favoriteList = new ArrayList<>();
+            for (ParkingLot p : mParkingLotList) {
+                if (mFavorites.contains(p.getId())) {
+                    favoriteList.add(p);
+                }
+            }
+            for (ParkingLot p : favoriteList) {
+                Log.d(TAG, "onNavigationItemSelected: " + p.getId());
+            }
+            intent.putExtra(Constants.EXTRA_FAVORITE, (Serializable) favoriteList);
+            startActivity(intent);
+        } else if (id == Constants.MAP_ITEM_CAR) {
+            Intent intent = new Intent(MapsActivity.this, CarActivity.class);
+            startActivity(intent);
+        } else if (id == Constants.MAP_ITEM_HELP) {
+
+        } else if (id == Constants.MAP_ITEM_MANAGER) {
+            finish();
+        }
+
+        mDrawer.closeDrawer();
+        return false;
     }
 }

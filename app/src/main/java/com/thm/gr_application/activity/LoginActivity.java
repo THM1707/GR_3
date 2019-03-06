@@ -3,7 +3,9 @@ package com.thm.gr_application.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -66,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             @Override
                             public void onSuccess(CredentialResponse credentialResponse) {
                                 mProgressView.setVisibility(View.INVISIBLE);
-                                storeValues(username, password, credentialResponse.getAccessToken(), credentialResponse.getFavorites(), credentialResponse.getRole());
+                                storeValues(password, credentialResponse);
                                 if (credentialResponse.getRole().equals(getString(R.string.role_user))) {
                                     startMapActivity(credentialResponse.getAccessToken());
                                 } else {
@@ -98,13 +100,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         finish();
     }
 
-    private void storeValues(String username, String password, String accessToken, List<Long> favorites, String role) {
+    private void storeValues(String password, CredentialResponse response) {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        String accessToken = response.getAccessToken();
+        String json = new Gson().toJson(response.getFavorites());
+        String role = response.getRole();
+        String username = response.getUsername();
+        String email = response.getEmail();
         editor.putString(Constants.KEY_PASSWORD, password);
         editor.putString(Constants.KEY_USERNAME, username);
+        editor.putString(Constants.KEY_EMAIL, email);
         editor.putString(Constants.KEY_TOKEN, "Bearer " + accessToken);
-        String json = new Gson().toJson(favorites);
         editor.putString(Constants.KEY_FAVORITE, json);
         editor.putString(Constants.KEY_ROLE, role);
         editor.apply();

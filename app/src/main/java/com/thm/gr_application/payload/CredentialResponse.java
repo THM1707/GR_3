@@ -16,6 +16,14 @@ public class CredentialResponse {
     private String role;
 
     @Expose
+    @SerializedName("username")
+    private String username;
+
+    @Expose
+    @SerializedName("email")
+    private String email;
+
+    @Expose
     @SerializedName("favorites")
     private List<Long> favorites;
 
@@ -53,5 +61,21 @@ public class CredentialResponse {
 
     public void setProperty(ParkingLot property) {
         this.property = property;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
