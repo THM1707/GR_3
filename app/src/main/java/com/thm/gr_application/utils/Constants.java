@@ -16,6 +16,8 @@ public class Constants {
     public static final String EXTRA_FAVORITE = "extra_favorite";
     public static final String EXTRA_PROPERTY = "extra_property";
     public static final String EXTRA_IS_FAVORITE = "extra_is_favorite";
+    public static final String EXTRA_DISTANCE = "extra_distance";
+
     /*
     Shared preferences related
      */
@@ -41,4 +43,34 @@ public class Constants {
     public static final long MAP_ITEM_CAR = 1;
     public static final long MAP_ITEM_HELP = 2;
     public static final long MAP_ITEM_MANAGER = 3;
+    public static final long MAP_ITEM_PENDING = 4;
+
+    /*
+    Invoice Status
+     */
+    public static final String STATUS_PENDING = "STATUS_PENDING";
+    public static final String STATUS_ACTIVE = "STATUS_ACTIVE";
+    public static final String STATUS_DONE = "STATUS_DONE";
+    public static final String STATUS_CANCEL = "STATUS_CANCELED";
+
+    /*
+    Serializable for fragments arguments
+     */
+    public static final String BUNDLE_ALL_LIST = "ALL_LIST";
+    public static final String BUNDLE_ACTIVE_LIST = "ACTIVE_LIST";
+    public static final String BUNDLE_ENDED_LIST = "ENDED_LIST";
+    public static final String BUNDLE_CAPACITY = "BUNDLE_CAPACITY";
+    public static final String BUNDLE_CURRENT = "BUNDLE_CURRENT";
+
+    /*
+    Booking status
+     */
+    public static final String BOOKING_RESULT_OK = "OK";
+    public static final String BOOKING_RESULT_CHANGED = "CHANGED";
+    public static final String BOOKING_RESULT_PENDING = "RESULT_PENDING";
+    public static final String BOOKING_RESULT_EXIST = "RESULT_EXIST";
+    public static final String BOOKING_RESULT_COLLAPSE = "RESULT_COLLAPSE";
+    public static final String BOOKING_RESULT_FULL = "RESULT_FULL";
+
+
 }

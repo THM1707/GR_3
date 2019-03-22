@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.luasoftware.luapass.MainActivity">
+
+    <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/ic_search_24dp"
+        android:title="@string/title_search"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="collapseActionView|always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:icon="@drawable/ic_refresh_24dp"
+        android:id="@+id/menu_refresh"
+        android:title="@string/title_refresh"
+        app:showAsAction="ifRoom" />
+
+</menu>

@@ -17,8 +17,7 @@ import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.CredentialResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
-
-import java.util.List;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -31,7 +30,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private TextView mUsernameView;
     private EditText mPasswordView;
-    private View mProgressView;
+    private AVLoadingIndicatorView mProgressView;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     @Override
@@ -58,7 +57,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
 
             case R.id.bt_login:
-                mProgressView.setVisibility(View.VISIBLE);
+                mProgressView.bringToFront();
+                mProgressView.show();
                 String username = mUsernameView.getText().toString();
                 String password = mPasswordView.getText().toString();
                 Disposable disposable = AppServiceClient.getMyApiInstance(this).login(username, password)
@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         .subscribeWith(new DisposableSingleObserver<CredentialResponse>() {
                             @Override
                             public void onSuccess(CredentialResponse credentialResponse) {
-                                mProgressView.setVisibility(View.INVISIBLE);
+                                mProgressView.hide();
                                 storeValues(password, credentialResponse);
                                 if (credentialResponse.getRole().equals(getString(R.string.role_user))) {
                                     startMapActivity(credentialResponse.getAccessToken());
@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                             @Override
                             public void onError(Throwable e) {
-                                mProgressView.setVisibility(View.INVISIBLE);
+                                mProgressView.hide();
                                 if (e instanceof HttpException) {
                                     Toast.makeText(LoginActivity.this, R.string.error_bad_credential, Toast.LENGTH_SHORT).show();
                                 } else {

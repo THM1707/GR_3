@@ -1,8 +1,7 @@
 package com.thm.gr_application.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.thm.gr_application.R;
+import com.thm.gr_application.adapter.listener.CarClickListener;
 import com.thm.gr_application.data.CarDatabase;
 import com.thm.gr_application.model.Car;
 import com.thm.gr_application.utils.Constants;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -25,7 +27,7 @@ import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
-    private static final String TAG = "CarAdapter";
+    private static final String TAG = CarAdapter.class.getSimpleName();
     private Context mContext;
     private List<Car> mCarList;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -71,24 +73,32 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
         }
         carViewHolder.mPlateText.setText(car.getLicensePlate());
         carViewHolder.setListener((v, position) -> {
-            Disposable disposable = Completable.fromAction(() -> CarDatabase.getDatabase(mContext).getCarDao().delete(car.getLicensePlate()))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(new DisposableCompletableObserver() {
-                        @Override
-                        public void onComplete() {
-                            mCarList.remove(position);
-                            notifyItemRemoved(position);
-                            notifyItemRangeChanged(position, mCarList.size());
-                        }
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setMessage(R.string.confirm_delete_car)
+                    .setPositiveButton(R.string.action_ok, (dialog, which) -> deleteCar(car, position))
+                    .create().show();
 
-                        @Override
-                        public void onError(Throwable e) {
-
-                        }
-                    });
-            mCompositeDisposable.add(disposable);
         });
+    }
+
+    private void deleteCar(Car car, int position) {
+        Disposable disposable = Completable.fromAction(() -> CarDatabase.getDatabase(mContext).getCarDao().delete(car.getLicensePlate()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableCompletableObserver() {
+                    @Override
+                    public void onComplete() {
+                        mCarList.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, mCarList.size());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+        mCompositeDisposable.add(disposable);
     }
 
     @Override

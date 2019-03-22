@@ -23,7 +23,9 @@
             map:mapType="normal"
             tools:context=".activity.MapsActivity" />
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp"
             android:id="@+id/card_lame"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -65,7 +67,7 @@
                     android:paddingStart="8dp"
                     android:paddingEnd="0dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_my_location"
@@ -73,10 +75,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
             app:srcCompat="@drawable/ic_navigation"
-            app:backgroundTint="@color/white" />
+            app:backgroundTint="@color/accent" />
     </RelativeLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

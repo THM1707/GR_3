@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.thm.gr_application.R;
 import com.thm.gr_application.activity.ParkingLotDetailsActivity;
+import com.thm.gr_application.adapter.listener.BookmarkClickListener;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.utils.Constants;
 
@@ -70,7 +71,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.Bookma
             textCapacity = itemView.findViewById(R.id.tv_capacity);
         }
 
-        public void setListener(BookmarkClickListener listener) {
+        void setListener(BookmarkClickListener listener) {
             mListener = listener;
         }
 

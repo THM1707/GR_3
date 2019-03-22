@@ -1,6 +1,8 @@
 package com.thm.gr_application.retrofit;
 
 import com.thm.gr_application.payload.CredentialResponse;
+import com.thm.gr_application.payload.InvoiceIndexResponse;
+import com.thm.gr_application.payload.InvoiceResponse;
 import com.thm.gr_application.payload.MessageResponse;
 import com.thm.gr_application.payload.ParkingLotInRequest;
 import com.thm.gr_application.payload.ParkingLotsResponse;
@@ -46,4 +48,28 @@ public interface GRApi {
 
     @PUT("api/favorite/add/{id}")
     Completable addFavorite(@Header("Authorization") String authToken, @Path("id") Long id);
+
+    @GET("api/invoice/user_pending")
+    Single<InvoiceResponse> getUserPending(@Header("Authorization") String authToken);
+
+    @POST("api/invoice/cancel/{id}")
+    Single<MessageResponse> cancelPending(@Header("Authorization") String authToken, @Path("id") Long id);
+
+    @POST("api/invoice/request")
+    Single<InvoiceResponse> requestBooking(@Header("Authorization") String authToken,
+                                           @Query("parkingLotId") Long pId,
+                                           @Query("plate") String plate);
+
+
+    @GET("api/invoice/manager/index")
+    Single<InvoiceIndexResponse> invoiceIndex(@Header("Authorization") String authToken);
+
+    @POST("api/invoice/manager/create")
+    Single<InvoiceResponse> createBooking(@Header("Authorization") String authToken, @Query("plate") String plate);
+
+    @POST("api/invoice/manager/accept/{id}")
+    Single<InvoiceResponse> acceptBooking(@Header("Authorization") String authToken, @Path("id") Long id);
+
+    @POST("api/invoice/manager/withdraw/{id}")
+    Single<InvoiceResponse> withdraw(@Header("Authorization") String authToken, @Path("id") Long id);
 }

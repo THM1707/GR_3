@@ -89,8 +89,11 @@
     </RadioGroup>
 
     <Button
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="32dp"
         android:id="@+id/bt_add_car"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
         android:text="@string/action_add"

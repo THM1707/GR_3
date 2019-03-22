@@ -15,12 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activity.AccountManagementActivity"></activity>
-        <activity android:name=".activity.NavDrawerActivity"></activity>
         <activity
             android:name=".activity.ManagerActivity"
-            android:label="@string/title_activity_manager"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_activity_manager"/>
+        <activity android:name=".activity.PendingActivity" />
+        <activity android:name=".activity.AccountManagementActivity" />
+        <activity android:name=".activity.NavDrawerActivity" />
         <activity android:name=".activity.CarActivity" />
 
         <meta-data

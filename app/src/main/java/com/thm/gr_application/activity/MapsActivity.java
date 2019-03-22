@@ -6,6 +6,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -40,6 +41,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -98,6 +100,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private SupportMapFragment mMapFragment;
     private List<Long> mFavorites;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private Location mCurrentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +138,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .withIdentifier(Constants.MAP_ITEM_CAR)
                         .withName("Car")
                         .withIcon(R.drawable.ic_car);
+        PrimaryDrawerItem pendingItem =
+                new PrimaryDrawerItem()
+                        .withIdentifier(Constants.MAP_ITEM_PENDING)
+                        .withName("Pending Request")
+                        .withIcon(R.drawable.ic_pending);
         SecondaryDrawerItem helpItem =
                 new SecondaryDrawerItem()
                         .withIdentifier(Constants.MAP_ITEM_HELP)
@@ -174,6 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addDrawerItems(
                         bookmarkItem,
                         carItem,
+                        pendingItem,
                         new DividerDrawerItem(),
                         helpItem
                 )
@@ -191,8 +200,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(this);
         }
-
-        findViewById(R.id.fab_my_location).setOnClickListener(this);
+        FloatingActionButton floatingActionButton = findViewById(R.id.fab_my_location);
+        floatingActionButton.setOnClickListener(this);
+        floatingActionButton.setColorFilter(Color.WHITE);
 
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getResources().getString(R.string.google_maps_key));
@@ -213,8 +223,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationResult(LocationResult locationResult) {
                 List<Location> locationList = locationResult.getLocations();
                 if (locationList.size() > 0) {
-                    Location location = locationList.get(locationList.size() - 1);
-                    LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mCurrentLocation = locationList.get(locationList.size() - 1);
+                    LatLng currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 15.0f);
                     mMap.animateCamera(update);
                 }
@@ -341,9 +351,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Location markerLocation = new Location("");
+        markerLocation.setLatitude(marker.getPosition().latitude);
+        markerLocation.setLongitude(marker.getPosition().longitude);
+        float distance = mCurrentLocation.distanceTo(markerLocation);
         ParkingLot p = mMarkerParkingLotMap.get(marker);
         Intent intent = new Intent(this, ParkingLotDetailsActivity.class);
         intent.putExtra(Constants.EXTRA_PARKING_LOT, p);
+        intent.putExtra(Constants.EXTRA_DISTANCE, distance);
         startActivity(intent);
         return false;
     }
@@ -524,6 +539,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         } else if (id == Constants.MAP_ITEM_MANAGER) {
             finish();
+        } else if (id == Constants.MAP_ITEM_PENDING) {
+            startActivity(new Intent(MapsActivity.this, PendingActivity.class));
         }
 
         mDrawer.closeDrawer();

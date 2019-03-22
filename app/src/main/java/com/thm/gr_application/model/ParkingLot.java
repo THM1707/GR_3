@@ -30,6 +30,18 @@ public class ParkingLot implements Serializable {
     @Expose
     private double longitude;
 
+    @SerializedName("openTime")
+    @Expose
+    private String openTime;
+
+    @SerializedName("closeTime")
+    @Expose
+    private String closeTime;
+
+    @SerializedName("current")
+    @Expose
+    private int current;
+
     public String getName() {
         return mName;
     }
@@ -76,5 +88,29 @@ public class ParkingLot implements Serializable {
 
     public void setId(Long id) {
         mId = id;
+    }
+
+    public String getOpenTime() {
+        return openTime;
+    }
+
+    public void setOpenTime(String openTime) {
+        this.openTime = openTime;
+    }
+
+    public String getCloseTime() {
+        return closeTime;
+    }
+
+    public void setCloseTime(String closeTime) {
+        this.closeTime = closeTime;
+    }
+
+    public int getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(int current) {
+        this.current = current;
     }
 }

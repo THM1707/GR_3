@@ -121,7 +121,7 @@
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="@+id/til_new_password"
         app:layout_constraintTop_toBottomOf="@+id/tv_new_password_condition"
-        app:srcCompat="@drawable/ic_checked" />
+        app:srcCompat="@drawable/ic_checked_48dp" />
 
     <TextView
         android:id="@+id/tv_new_password_condition"

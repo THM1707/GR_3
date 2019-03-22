@@ -1,4 +1,4 @@
-package com.thm.gr_application.adapter;
+package com.thm.gr_application.adapter.listener;
 
 import android.view.View;
 
