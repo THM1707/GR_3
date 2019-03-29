@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thm.gr_application.R;
@@ -126,7 +127,11 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
         textAddress.setText(parkingLot.getAddress());
         textActiveTime.setText(getActiveTimeText());
         textDistance.setText(getDistanceText());
-        imageView.setImageResource(R.drawable.parking_lot);
+        if (parkingLot.getImage()!= null){
+            Glide.with(this).load(Constants.END_POINT_URL + "/api/image/" +parkingLot.getImage().getId()).into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.parking_lot);
+        }
         mImageButton = findViewById(R.id.ib_favorite);
         mImageButton.setImageResource(isFavorite ? R.drawable.ic_favorite_on : R.drawable.ic_favorite_off);
         mImageButton.setOnClickListener(v -> {

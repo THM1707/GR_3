@@ -42,6 +42,9 @@ public class ParkingLot implements Serializable {
     @Expose
     private int current;
 
+    @Expose
+    private Image image;
+
     public String getName() {
         return mName;
     }
@@ -106,11 +109,32 @@ public class ParkingLot implements Serializable {
         this.closeTime = closeTime;
     }
 
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     public int getCurrent() {
         return current;
     }
 
     public void setCurrent(int current) {
         this.current = current;
+    }
+
+    public class Image implements Serializable{
+        @Expose
+        private Long id;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
     }
 }

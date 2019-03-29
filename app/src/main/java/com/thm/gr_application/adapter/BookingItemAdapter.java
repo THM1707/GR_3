@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thm.gr_application.R;
-import com.thm.gr_application.activity.fragment.HomeFragment;
 import com.thm.gr_application.adapter.listener.InvoiceClickListener;
 import com.thm.gr_application.model.Invoice;
 import com.thm.gr_application.model.ParkingLot;
@@ -276,7 +275,7 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
 
     }
 
-    public interface ParkingLotChangedListener{
+    public interface ParkingLotChangedListener {
         void onParkingLotChange(ParkingLot parkingLot);
     }
 
