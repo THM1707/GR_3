@@ -42,13 +42,7 @@ import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.HttpException;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link HomeFragmentListeners}
- * interface.
- */
-public class HomeFragment extends Fragment implements View.OnClickListener{
+public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private HomeFragmentListeners mListener;
     private List<Invoice> mAllList;
@@ -64,7 +58,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     public HomeFragment() {
     }
 
-    public static HomeFragment newInstance(int capacity, int current, List<Invoice> allList, List<Invoice> activeList) {
+    public static HomeFragment newInstance(int capacity, int current, List<Invoice> allList,
+            List<Invoice> activeList) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putSerializable(Constants.BUNDLE_ALL_LIST, (Serializable) allList);
@@ -81,7 +76,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mAllList = (List<Invoice>) getArguments().getSerializable(Constants.BUNDLE_ALL_LIST);
-            mActiveList = (List<Invoice>) getArguments().getSerializable(Constants.BUNDLE_ACTIVE_LIST);
+            mActiveList =
+                    (List<Invoice>) getArguments().getSerializable(Constants.BUNDLE_ACTIVE_LIST);
             mCapacity = getArguments().getInt(Constants.BUNDLE_CAPACITY);
             mCurrent = getArguments().getInt(Constants.BUNDLE_CURRENT);
         }
@@ -89,7 +85,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         mHistoryCheckBox = view.findViewById(R.id.cb_history);
         mHistoryCheckBox.setOnClickListener(this);
@@ -129,15 +125,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         return view;
     }
 
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof HomeFragmentListeners) {
             mListener = (HomeFragmentListeners) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement HomeFragmentListeners");
+            throw new RuntimeException(
+                    context.toString() + " must implement HomeFragmentListeners");
         }
     }
 
@@ -170,7 +165,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     }
 
     private void showAddDialog() {
-        String token = getActivity().getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
+        String token =
+                getActivity().getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE)
+                        .getString(Constants.SHARED_TOKEN, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getLayoutInflater().inflate(R.layout.dialog_invoice, null);
         builder.setView(view);
@@ -179,7 +176,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
             mProgressView.show();
             EditText editText = view.findViewById(R.id.et_plate);
             String plate = editText.getText().toString();
-            Disposable disposable = AppServiceClient.getMyApiInstance(getActivity()).createBooking(token, plate)
+            Disposable disposable = AppServiceClient.getMyApiInstance(getActivity())
+                    .createBooking(token, plate)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
@@ -197,13 +195,17 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                             mProgressView.hide();
                             if (e instanceof HttpException) {
                                 try {
-                                    JSONObject jObjError = new JSONObject(((HttpException) e).response().errorBody().string());
-                                    Toast.makeText(getActivity(), jObjError.getString("message"), Toast.LENGTH_SHORT).show();
+                                    JSONObject jObjError = new JSONObject(
+                                            ((HttpException) e).response().errorBody().string());
+                                    Toast.makeText(getActivity(), jObjError.getString("message"),
+                                            Toast.LENGTH_SHORT).show();
                                 } catch (Exception ex) {
-                                    Toast.makeText(getActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getActivity(), ex.getMessage(),
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             } else {
-                                Toast.makeText(getActivity(), R.string.error_server, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), R.string.error_server,
+                                        Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -218,7 +220,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
     }
 
     public interface HomeFragmentListeners {
-        void onRefreshRequested(List<Invoice> allList, List<Invoice> activeList, BookingItemAdapter adapter, TextView currentText);
+        void onRefreshRequested(List<Invoice> allList, List<Invoice> activeList,
+                BookingItemAdapter adapter, TextView currentText);
+
         void onPropertyChanged(ParkingLot parkingLot);
     }
 

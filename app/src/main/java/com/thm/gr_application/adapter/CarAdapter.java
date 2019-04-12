@@ -77,7 +77,6 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.CarViewHolder> {
             builder.setMessage(R.string.confirm_delete_car)
                     .setPositiveButton(R.string.action_ok, (dialog, which) -> deleteCar(car, position))
                     .create().show();
-
         });
     }
 

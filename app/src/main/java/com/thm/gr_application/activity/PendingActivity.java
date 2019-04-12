@@ -1,15 +1,23 @@
 package com.thm.gr_application.activity;
 
-import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.Group;
 import com.thm.gr_application.R;
+import com.thm.gr_application.data.CarDatabase;
+import com.thm.gr_application.model.Car;
 import com.thm.gr_application.model.Invoice;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.InvoiceResponse;
@@ -17,20 +25,17 @@ import com.thm.gr_application.payload.MessageResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.wang.avi.AVLoadingIndicatorView;
-
-import org.joda.time.DateTime;
-
-import java.util.Locale;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.Group;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import org.joda.time.DateTime;
+import org.json.JSONObject;
+import retrofit2.HttpException;
 
 public class PendingActivity extends AppCompatActivity implements View.OnClickListener {
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -43,20 +48,44 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
     private Invoice mInvoice;
     private ImageView mEmptyImage;
     private Group mGroup;
+    private List<Car> mCarList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pending);
         initViews();
+        initCarList();
         getData();
+    }
 
+    private void initCarList() {
+        CarDatabase carDatabase = CarDatabase.getDatabase(this);
+        Disposable disposable = carDatabase.getCarDao()
+                .getAll()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<List<Car>>() {
+                    @Override
+                    public void onSuccess(List<Car> cars) {
+                        mCarList = cars;
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(PendingActivity.this, e.getMessage(), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                });
+        mCompositeDisposable.add(disposable);
     }
 
     private void getData() {
-        String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
+        String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
+                Constants.SHARED_TOKEN, null);
         mHistoryProgress.show();
-        Disposable disposable = AppServiceClient.getMyApiInstance(this).getUserPending(token)
+        Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                .getUserPending(token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
@@ -72,7 +101,13 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                             DateTime date = new DateTime(mInvoice.getCreatedDate());
                             DateTime.Property pDoW = date.dayOfWeek();
                             String strTF = pDoW.getAsText(Locale.getDefault());
-                            String dateString = strTF + " " + date.getDayOfMonth() + "-" + date.getMonthOfYear() + "-" + date.getYear();
+                            String dateString = strTF
+                                    + " "
+                                    + date.getDayOfMonth()
+                                    + "-"
+                                    + date.getMonthOfYear()
+                                    + "-"
+                                    + date.getYear();
                             mDateText.setText(dateString);
                             mPlateText.setText(mInvoice.getPlate());
                         }
@@ -81,9 +116,10 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onError(Throwable e) {
                         mHistoryProgress.hide();
-                        mEmptyText.setText("Cannot connect to server, please try again later");
+                        mEmptyText.setText(R.string.error_server);
                         mEmptyImage.setImageResource(R.drawable.ic_disconnected);
-                        Toast.makeText(PendingActivity.this, "There are something wrong with server", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PendingActivity.this,
+                                "There are something wrong with server", Toast.LENGTH_SHORT).show();
                     }
                 });
         mCompositeDisposable.add(disposable);
@@ -106,6 +142,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
         mEmptyLayout = findViewById(R.id.ll_history);
         mEmptyImage = findViewById(R.id.iv_empty);
         findViewById(R.id.bt_cancel).setOnClickListener(this);
+        findViewById(R.id.bt_change).setOnClickListener(this);
     }
 
     @Override
@@ -120,6 +157,83 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.bt_cancel:
                 showCancelDialog();
                 break;
+            case R.id.bt_change:
+                changePlate();
+        }
+    }
+
+    private void changePlate() {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+        if (mCarList.isEmpty()) {
+            // Show dialog to go to Car Activity to add car
+            builder.setMessage(R.string.message_no_car)
+                    .setPositiveButton(R.string.action_ok,
+                            (dialog, which) -> PendingActivity.this.startActivity(
+                                    new Intent(PendingActivity.this, CarActivity.class)))
+                    .create()
+                    .show();
+        } else {
+            // Make a new request
+            String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
+                    Constants.SHARED_TOKEN, null);
+            List<String> plateList = new ArrayList<>();
+            for (Car c : mCarList) {
+                plateList.add(c.getLicensePlate());
+            }
+            String[] plateArray = plateList.toArray(new String[0]);
+            View layout = getLayoutInflater().inflate(R.layout.dialog_booking, null);
+            Spinner carSpinner = layout.findViewById(R.id.spinner_plate);
+            ArrayAdapter<String> adapter =
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                            plateArray);
+            carSpinner.setAdapter(adapter);
+            builder.setView(layout);
+            AlertDialog dialog = builder.create();
+            layout.findViewById(R.id.bt_booking).setOnClickListener(v -> {
+                String plate = carSpinner.getSelectedItem().toString();
+                Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                        .changeReservePlate(token, mInvoice.getId(), plate)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableSingleObserver<MessageResponse>() {
+                            @Override
+                            public void onSuccess(MessageResponse messageResponse) {
+                                Toast.makeText(PendingActivity.this,
+                                        R.string.message_reserve_changed, Toast.LENGTH_SHORT)
+                                        .show();
+                                mPlateText.setText(plate);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                if (e instanceof HttpException) {
+                                    try {
+                                        JSONObject jObjError = new JSONObject(
+                                                ((HttpException) e).response()
+                                                        .errorBody()
+                                                        .string());
+                                        switch (jObjError.getString("message")) {
+                                            case Constants.BOOKING_RESULT_EXIST:
+                                                Toast.makeText(PendingActivity.this,
+                                                        R.string.message_plate_already_exist,
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                        }
+                                    } catch (Exception ex) {
+                                        Toast.makeText(PendingActivity.this, ex.getMessage(),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(PendingActivity.this, R.string.error_server,
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                mCompositeDisposable.add(disposable);
+                dialog.dismiss();
+            });
+            dialog.show();
         }
     }
 
@@ -131,7 +245,6 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -139,13 +252,15 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.confirm_cancel)
                 .setPositiveButton(R.string.action_ok, (dialog, which) -> cancelBooking())
-                .create().show();
-
+                .create()
+                .show();
     }
 
     private void cancelBooking() {
-        String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
-        Disposable disposable = AppServiceClient.getMyApiInstance(this).cancelPending(token, mInvoice.getId())
+        String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
+                Constants.SHARED_TOKEN, null);
+        Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                .cancelPending(token, mInvoice.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<MessageResponse>() {
@@ -157,7 +272,8 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
 
                     @Override
                     public void onError(Throwable e) {
-                        Toast.makeText(PendingActivity.this, "Something wrong, try again later", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PendingActivity.this, "Something wrong, try again later",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
         mCompositeDisposable.add(disposable);

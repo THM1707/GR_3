@@ -56,7 +56,7 @@ public class ManagerActivity extends AppCompatActivity implements BottomNavigati
     }
 
     private void initData() {
-        String token = getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
+        String token = getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.SHARED_TOKEN, null);
         Disposable disposable = AppServiceClient.getMyApiInstance(this).invoiceIndex(token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -116,7 +116,7 @@ public class ManagerActivity extends AppCompatActivity implements BottomNavigati
     public void onRefreshRequested(List<Invoice> allList, List<Invoice> activeList, BookingItemAdapter adapter, TextView currentText) {
         mProgressView.bringToFront();
         mProgressView.show();
-        String token = getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
+        String token = getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.SHARED_TOKEN, null);
         Disposable disposable = AppServiceClient.getMyApiInstance(this).invoiceIndex(token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -1,13 +1,14 @@
 package com.thm.gr_application.payload;
 
 import com.google.gson.annotations.Expose;
+import com.thm.gr_application.model.Review;
 
-public class TestResponse {
+public class ReviewResposne {
     @Expose
     private String message;
 
     @Expose
-    private String type;
+    private Review data;
 
     public String getMessage() {
         return message;
@@ -17,11 +18,11 @@ public class TestResponse {
         this.message = message;
     }
 
-    public String getType() {
-        return type;
+    public Review getData() {
+        return data;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setData(Review data) {
+        this.data = data;
     }
 }

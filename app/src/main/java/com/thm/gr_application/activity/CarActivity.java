@@ -71,7 +71,7 @@ public class CarActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setTitle("");
+            actionBar.setTitle("Car Management");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         RecyclerView carRecycle = findViewById(R.id.rv_car);

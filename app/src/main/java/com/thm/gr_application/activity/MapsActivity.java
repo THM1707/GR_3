@@ -12,8 +12,12 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -42,8 +46,6 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -60,33 +62,28 @@ import com.thm.gr_application.payload.ParkingLotsResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.ImageUtils;
-
-import org.joda.time.DateTime;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.joda.time.DateTime;
 import retrofit2.HttpException;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener, Drawer.OnDrawerItemClickListener {
+public class MapsActivity extends AppCompatActivity
+        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener,
+        Drawer.OnDrawerItemClickListener, GoogleMap.OnInfoWindowClickListener {
 
     private static final String TAG = "MapsActivity";
     private static final float DEFAULT_ZOOM = 15.0f;
-    private static final LatLng mDefaultLocation = new LatLng(21.0307162, 105.7756564);
+    private static final LatLng mDefaultLatLng = new LatLng(21.0307162, 105.7756564);
     private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
+    private static final int REQUEST_GPS_CODE = 101;
     private boolean isLocationPermissionGranted;
     private boolean isMarkersReady = false;
     private GoogleMap mMap;
@@ -98,7 +95,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private View mLocationButton;
     private Drawer mDrawer;
     private SupportMapFragment mMapFragment;
-    private List<Long> mFavorites;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private Location mCurrentLocation;
 
@@ -106,15 +102,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        setupVariables();
+        setupDefaultLocation();
         initViews();
-        mapAndPlaceFragmentInit();
+        initGoogleServices();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        getExtrasFromIntent();
+        getParkingLotList();
     }
 
-    private void setupVariables() {
-        mFavorites = getFavorites();
+    private void setupDefaultLocation() {
+        mCurrentLocation = new Location("");
+        mCurrentLocation.setLatitude(mDefaultLatLng.latitude);
+        mCurrentLocation.setLongitude(mDefaultLatLng.longitude);
     }
 
     private void initViews() {
@@ -124,68 +122,58 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setupNavigationDrawer() {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
-        String role = sharedPreferences.getString(Constants.KEY_ROLE, null);
-        String username = sharedPreferences.getString(Constants.KEY_USERNAME, null);
-        String email = sharedPreferences.getString(Constants.KEY_EMAIL, null);
-        PrimaryDrawerItem bookmarkItem =
-                new PrimaryDrawerItem()
-                        .withIdentifier(Constants.MAP_ITEM_BOOKMARK)
-                        .withName("Bookmark")
-                        .withIcon(R.drawable.ic_favorite_on);
-        PrimaryDrawerItem carItem =
-                new PrimaryDrawerItem()
-                        .withIdentifier(Constants.MAP_ITEM_CAR)
-                        .withName("Car")
-                        .withIcon(R.drawable.ic_car);
-        PrimaryDrawerItem pendingItem =
-                new PrimaryDrawerItem()
-                        .withIdentifier(Constants.MAP_ITEM_PENDING)
-                        .withName("Pending Request")
-                        .withIcon(R.drawable.ic_pending);
-        SecondaryDrawerItem helpItem =
-                new SecondaryDrawerItem()
-                        .withIdentifier(Constants.MAP_ITEM_HELP)
-                        .withName("Help");
-        SecondaryDrawerItem managerItem =
-                new SecondaryDrawerItem()
-                        .withIdentifier(Constants.MAP_ITEM_MANAGER)
-                        .withName("Manager");
-
-        AccountHeader headerResult =
-                new AccountHeaderBuilder()
-                        .withActivity(this)
-                        .withHeaderBackground(R.drawable.login_background)
-                        .addProfiles(
-                                new ProfileDrawerItem().withName(username).withEmail(email).withIcon(getResources().getDrawable(R.drawable.default_user))
-                        )
-                        .withOnAccountHeaderProfileImageListener(new AccountHeader.OnAccountHeaderProfileImageListener() {
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        String role = sharedPreferences.getString(Constants.SHARED_ROLE, null);
+        String name = sharedPreferences.getString(Constants.SHARED_NAME, null);
+        String email = sharedPreferences.getString(Constants.SHARED_EMAIL, null);
+        int gender = sharedPreferences.getInt(Constants.SHARED_GENDER, 0);
+        AccountHeader headerResult = new AccountHeaderBuilder().withActivity(this)
+                .withHeaderBackground(R.drawable.login_background)
+                .addProfiles(new ProfileDrawerItem().withName(name)
+                        .withEmail(email)
+                        .withIcon(getResources().getDrawable(
+                                gender == 0 ? R.drawable.ic_male : R.drawable.ic_female)))
+                .withOnAccountHeaderProfileImageListener(
+                        new AccountHeader.OnAccountHeaderProfileImageListener() {
                             @Override
-                            public boolean onProfileImageClick(View view, IProfile profile, boolean current) {
-                                Intent intent = new Intent(MapsActivity.this, AccountManagementActivity.class);
+                            public boolean onProfileImageClick(View view, IProfile profile,
+                                    boolean current) {
+                                Intent intent =
+                                        new Intent(MapsActivity.this, ProfileActivity.class);
                                 startActivity(intent);
                                 return false;
                             }
 
                             @Override
-                            public boolean onProfileImageLongClick(View view, IProfile profile, boolean current) {
+                            public boolean onProfileImageLongClick(View view, IProfile profile,
+                                    boolean current) {
                                 return false;
                             }
                         })
-                        .withSelectionListEnabledForSingleProfile(false)
-                        .build();
-
-        mDrawer = new DrawerBuilder()
-                .withAccountHeader(headerResult)
+                .withSelectionListEnabledForSingleProfile(false)
+                .build();
+        PrimaryDrawerItem bookmarkItem =
+                new PrimaryDrawerItem().withIdentifier(Constants.MAP_ITEM_BOOKMARK)
+                        .withName("Bookmark")
+                        .withIcon(R.drawable.ic_favorite_on);
+        PrimaryDrawerItem carItem = new PrimaryDrawerItem().withIdentifier(Constants.MAP_ITEM_CAR)
+                .withName("Car")
+                .withIcon(R.drawable.ic_car);
+        PrimaryDrawerItem pendingItem =
+                new PrimaryDrawerItem().withIdentifier(Constants.MAP_ITEM_PENDING)
+                        .withName("Pending Request")
+                        .withIcon(R.drawable.ic_pending);
+        SecondaryDrawerItem helpItem =
+                new SecondaryDrawerItem().withIdentifier(Constants.MAP_ITEM_HELP).withName("Help");
+        SecondaryDrawerItem managerItem =
+                new SecondaryDrawerItem().withIdentifier(Constants.MAP_ITEM_MANAGER)
+                        .withName("Manager");
+        mDrawer = new DrawerBuilder().withAccountHeader(headerResult)
                 .withActivity(this)
                 .withSelectedItem(-1)
-                .addDrawerItems(
-                        bookmarkItem,
-                        carItem,
-                        pendingItem,
-                        new DividerDrawerItem(),
-                        helpItem
-                )
+                .addDrawerItems(bookmarkItem, carItem, pendingItem, new DividerDrawerItem(),
+                        helpItem)
                 .withOnDrawerItemClickListener(this)
                 .build();
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
@@ -194,9 +182,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void mapAndPlaceFragmentInit() {
-        mMapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+    private void initGoogleServices() {
+        mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(this);
         }
@@ -205,13 +192,46 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         floatingActionButton.setColorFilter(Color.WHITE);
 
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getResources().getString(R.string.google_maps_key));
+            Places.initialize(getApplicationContext(),
+                    getResources().getString(R.string.google_maps_key));
         }
     }
 
-    private void getExtrasFromIntent() {
-        String token = getIntent().getStringExtra(Constants.EXTRA_TOKEN);
-        getParkingLotList(token);
+    private void getParkingLotList() {
+        // Lay list parking lot tu server de tao markers
+        String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
+                Constants.SHARED_TOKEN, null);
+        Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                .getParkingLots(token)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<ParkingLotsResponse>() {
+                    @Override
+                    public void onSuccess(ParkingLotsResponse parkingLotsResponse) {
+                        mParkingLotList = parkingLotsResponse.getData();
+                        if (mMap != null) {
+                            createMarkers();
+                            isMarkersReady = true;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (e instanceof HttpException) {
+                            if (((HttpException) e).code() == 401) {
+                                Toast.makeText(MapsActivity.this, R.string.error_session,
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MapsActivity.this, R.string.error_server,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(MapsActivity.this, R.string.error_server,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        mCompositeDisposable.add(disposable);
     }
 
     @Override
@@ -224,7 +244,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 List<Location> locationList = locationResult.getLocations();
                 if (locationList.size() > 0) {
                     mCurrentLocation = locationList.get(locationList.size() - 1);
-                    LatLng currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                    LatLng currentLatLng = new LatLng(mCurrentLocation.getLatitude(),
+                            mCurrentLocation.getLongitude());
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 15.0f);
                     mMap.animateCamera(update);
                 }
@@ -241,8 +262,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
+    private void settingMap() {
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setCompassEnabled(false);
+        mMap.setInfoWindowAdapter(new DetailsInfoAdapter());
+        mMap.setOnInfoWindowClickListener(this);
+        // Set map's day and night style
+        try {
+            DateTime current = new DateTime();
+            int hour = current.getHourOfDay();
+            boolean success;
+            if ((hour >= 18 && hour < 24) || (hour >= 0 && hour < 6)) {
+                success = mMap.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(this, R.raw.dark_style));
+            } else {
+                success = mMap.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(this, R.raw.normal_style));
+            }
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+        mMap.setOnMarkerClickListener(this);
+        if (!isMarkersReady) {
+            createMarkers();
+        }
+    }
+
     private void checkGps() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
+        LocationSettingsRequest.Builder builder =
+                new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         SettingsClient client = LocationServices.getSettingsClient(this);
         Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
         task.addOnCompleteListener(task1 -> {
@@ -251,7 +303,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // All location settings are satisfied. The client can initialize location
                 // requests here.
                 updateMyLocationUI();
-
             } catch (ApiException exception) {
                 switch (exception.getStatusCode()) {
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -262,7 +313,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             ResolvableApiException resolvable = (ResolvableApiException) exception;
                             // Show the dialog by calling startResolution   ForResult(),
                             // and check the result in onActivityResult().
-                            resolvable.startResolutionForResult(MapsActivity.this, 101);
+                            resolvable.startResolutionForResult(MapsActivity.this,
+                                    REQUEST_GPS_CODE);
                         } catch (IntentSender.SendIntentException e) {
                             // Ignore the error.
                         } catch (ClassCastException e) {
@@ -275,7 +327,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         break;
                 }
             }
-
         });
     }
 
@@ -286,10 +337,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Set the fields to specify which types of place data to return.
                 List<Place.Field> fields = Collections.singletonList(Place.Field.LAT_LNG);
                 // Start the autocomplete intent.
-                Intent intent = new Autocomplete.IntentBuilder(
-                        AutocompleteActivityMode.FULLSCREEN, fields)
-                        .setCountry("VN")
-                        .build(this);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN,
+                        fields).setCountry("VN").build(this);
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
                 break;
             case R.id.bt_navigation_drawer:
@@ -313,10 +362,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case 101:
+            case REQUEST_GPS_CODE:
                 switch (resultCode) {
                     case Activity.RESULT_CANCELED:
-                        // The user was asked to change settings, but chose not to
                         showDefaultLocation();
                         break;
                     case Activity.RESULT_OK:
@@ -333,7 +381,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                     Toast.makeText(this, R.string.error_place_api, Toast.LENGTH_SHORT).show();
                 } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(20.9984926, 105.7943954)));
+                    mMap.animateCamera(
+                            CameraUpdateFactory.newLatLng(new LatLng(20.9984926, 105.7943954)));
                 }
                 break;
         }
@@ -341,32 +390,40 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void createMarkers() {
         for (ParkingLot p : mParkingLotList) {
-            Marker m = mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(p.getLatitude(), p.getLongitude()))
-                    .icon(BitmapDescriptorFactory.fromBitmap(ImageUtils.getParkingBitmapFromVectorDrawable(this)))
-                    .title(p.getName()));
+            Marker m = mMap.addMarker(
+                    new MarkerOptions().position(new LatLng(p.getLatitude(), p.getLongitude()))
+                            .icon(BitmapDescriptorFactory.fromBitmap(
+                                    ImageUtils.getParkingBitmapFromVectorDrawable(this)))
+                            .title(p.getName())
+                            .snippet(
+                                    "Available: " + (p.getCapacity() - p.getCurrent()) + " slots"));
             mMarkerParkingLotMap.put(m, p);
         }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        marker.showInfoWindow();
+        return false;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        marker.hideInfoWindow();
         Location markerLocation = new Location("");
         markerLocation.setLatitude(marker.getPosition().latitude);
         markerLocation.setLongitude(marker.getPosition().longitude);
         float distance = mCurrentLocation.distanceTo(markerLocation);
         ParkingLot p = mMarkerParkingLotMap.get(marker);
         Intent intent = new Intent(this, ParkingLotDetailsActivity.class);
-        intent.putExtra(Constants.EXTRA_PARKING_LOT, p);
+        intent.putExtra(Constants.EXTRA_PARKING_LOT, p.getId());
         intent.putExtra(Constants.EXTRA_DISTANCE, distance);
         startActivity(intent);
-        return false;
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+            @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 isLocationPermissionGranted = grantResults.length > 0
@@ -388,7 +445,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onDestroy();
     }
 
-
     @Override
     public void onBackPressed() {
         if (mDrawer.isDrawerOpen()) {
@@ -398,65 +454,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void getParkingLotList(String token) {
-        Disposable disposable = AppServiceClient.getMyApiInstance(this).getParkingLots(token)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<ParkingLotsResponse>() {
-                    @Override
-                    public void onSuccess(ParkingLotsResponse parkingLotsResponse) {
-                        mParkingLotList = parkingLotsResponse.getData();
-                        if (mMap != null) {
-                            createMarkers();
-                            isMarkersReady = true;
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (e instanceof HttpException) {
-                            if (((HttpException) e).code() == 401) {
-                                Toast.makeText(MapsActivity.this, R.string.error_session, Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(MapsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(MapsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-        mCompositeDisposable.add(disposable);
-    }
-
     @Override
     protected void onStop() {
         mCompositeDisposable.clear();
         super.onStop();
-    }
-
-    private void settingMap() {
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-        try {
-            DateTime current = new DateTime();
-            int hour = current.getHourOfDay();
-            boolean success;
-            if ((hour >= 18 && hour < 24) || (hour >= 0 && hour < 6)) {
-                success = mMap.setMapStyle(
-                        MapStyleOptions.loadRawResourceStyle(this, R.raw.dark_style));
-            } else {
-                success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.normal_style));
-            }
-
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }
-        mMap.setOnMarkerClickListener(this);
-        if (!isMarkersReady) {
-            createMarkers();
-        }
     }
 
     private void checkLocationPermission() {
@@ -472,13 +473,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             checkGps();
         } else {
             requestLocationPermission();
-
         }
     }
 
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
                 Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
     }
 
@@ -494,49 +494,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void showDefaultLocation() {
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLatLng, DEFAULT_ZOOM));
     }
 
     private void requestMyLocation() {
         try {
             if (isLocationPermissionGranted) {
-                mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,
+                        mLocationCallback, Looper.myLooper());
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
 
-    private List<Long> getFavorites() {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
-        String json = sharedPreferences.getString(Constants.KEY_FAVORITE, null);
-        return new Gson().fromJson(json, new TypeToken<List<Long>>() {
-        }.getType());
-    }
-
     @Override
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         long id = drawerItem.getIdentifier();
         if (id == Constants.MAP_ITEM_BOOKMARK) {
-            Intent intent = new
-                    Intent(MapsActivity.this, BookmarkActivity.class);
-            mFavorites = getFavorites();
-            List<ParkingLot> favoriteList = new ArrayList<>();
-            for (ParkingLot p : mParkingLotList) {
-                if (mFavorites.contains(p.getId())) {
-                    favoriteList.add(p);
-                }
-            }
-            for (ParkingLot p : favoriteList) {
-                Log.d(TAG, "onNavigationItemSelected: " + p.getId());
-            }
-            intent.putExtra(Constants.EXTRA_FAVORITE, (Serializable) favoriteList);
+            Intent intent = new Intent(MapsActivity.this, BookmarkActivity.class);
+            Log.d(TAG, "onItemClick: "
+                    + mCurrentLocation.getLatitude()
+                    + ", "
+                    + mCurrentLocation.getLongitude());
+            intent.putExtra(Constants.EXTRA_LATITUDE, mCurrentLocation.getLatitude());
+            intent.putExtra(Constants.EXTRA_LONGITUDE, mCurrentLocation.getLongitude());
             startActivity(intent);
         } else if (id == Constants.MAP_ITEM_CAR) {
             Intent intent = new Intent(MapsActivity.this, CarActivity.class);
             startActivity(intent);
         } else if (id == Constants.MAP_ITEM_HELP) {
-
+            // TODO: 07/04/2019
+            showHelp();
         } else if (id == Constants.MAP_ITEM_MANAGER) {
             finish();
         } else if (id == Constants.MAP_ITEM_PENDING) {
@@ -545,5 +534,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mDrawer.closeDrawer();
         return false;
+    }
+
+    private void showHelp() {
+    }
+
+    class DetailsInfoAdapter implements GoogleMap.InfoWindowAdapter {
+
+        private View mWindow;
+
+        DetailsInfoAdapter() {
+            mWindow = getLayoutInflater().inflate(R.layout.info_window, null);
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            TextView addressText = mWindow.findViewById(R.id.tv_address);
+            TextView availableText = mWindow.findViewById(R.id.tv_available);
+            addressText.setText(marker.getTitle());
+            availableText.setText(marker.getSnippet());
+            return mWindow;
+        }
     }
 }

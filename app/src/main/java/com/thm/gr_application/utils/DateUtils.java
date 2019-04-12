@@ -1,15 +1,19 @@
 package com.thm.gr_application.utils;
 
-import android.content.Context;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 public class DateUtils {
-    public static String getFormattedDateStringFromISOString(Context context, String isoString) {
+    public static String getFormattedDateTimeStringFromISOString(String isoString) {
         DateTime dateTime = new DateTime(isoString);
         DateTimeFormatter builder = DateTimeFormat.forPattern("dd-MM-yyyy ~ hh:mm a");
+        return builder.print(dateTime);
+    }
+
+    public static String getFormattedDateStringFromISOString(String isoString) {
+        DateTime dateTime = new DateTime(isoString);
+        DateTimeFormatter builder = DateTimeFormat.forPattern("dd-MM-yyyy");
         return builder.print(dateTime);
     }
 

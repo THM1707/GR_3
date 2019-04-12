@@ -2,7 +2,7 @@
     <string name="app_name">GR_Application</string>
     <!-- Strings related to login -->
     <string name="prompt_email_or_username">Email or Username</string>
-    <string name="prompt_password">Password</string>
+    <string name="hint_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -96,4 +96,22 @@
     <string name="title_search">Search</string>
     <string name="title_refresh">Refresh</string>
     <string name="title_time">at</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_email">Email</string>
+    <string name="title_male">Male</string>
+    <string name="title_female">Female</string>
+    <string name="title_logout">Logout</string>
+    <string name="error_wrong_password">Wrong password</string>
+    <string name="message_edit_profile_success">Edited</string>
+    <string name="message_already_booking">You already booked, please check the pending request</string>
+    <string name="message_plate_already_exist">This plate number already been used</string>
+    <string name="message_full_slot">No more slot left</string>
+    <string name="action_change">Change</string>
+    <string name="message_reserve_changed">Reservation changed</string>
+    <string name="hint_phone">Phone</string>
+    <string name="hint_book_count">Booked: 0 times</string>
+    <string name="hint_cancel_count">Canceled: 0 times</string>
+    <string name="message_no_comment">Click here to add your comment</string>
+    <string name="prompt_no_review">No review yet</string>
+    <string name="prompt_all_review">All reviews</string>
 </resources>

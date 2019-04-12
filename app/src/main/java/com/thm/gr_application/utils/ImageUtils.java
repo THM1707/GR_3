@@ -12,7 +12,7 @@ import com.thm.gr_application.R;
 
 public class ImageUtils {
     public static Bitmap getParkingBitmapFromVectorDrawable(Context context) {
-        Drawable drawable = ContextCompat.getDrawable(context, R.drawable.ic_marker);
+        Drawable drawable = ContextCompat.getDrawable(context, R.drawable.ic_marker_2);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             drawable = (DrawableCompat.wrap(drawable)).mutate();
         }

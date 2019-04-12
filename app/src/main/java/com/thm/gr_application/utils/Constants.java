@@ -1,7 +1,7 @@
 package com.thm.gr_application.utils;
 
 public class Constants {
-    public static final String END_POINT_URL = "http://192.168.1.228:8080";
+    public static final String END_POINT_URL = "http://192.168.1.141:8080";
 
     /*
     Permission
@@ -11,23 +11,23 @@ public class Constants {
     /*
     Extra code
      */
-    public static final String EXTRA_TOKEN = "extra_token";
     public static final String EXTRA_PARKING_LOT = "parking_lot";
-    public static final String EXTRA_FAVORITE = "extra_favorite";
     public static final String EXTRA_PROPERTY = "extra_property";
-    public static final String EXTRA_IS_FAVORITE = "extra_is_favorite";
     public static final String EXTRA_DISTANCE = "extra_distance";
+    public static final String EXTRA_LATITUDE = "extra_latitude";
+    public static final String EXTRA_LONGITUDE = "extra_longitude";
+    public static final String EXTRA_PARKING_LOT_NAME = "extra_parking_lot_name";
 
     /*
     Shared preferences related
      */
     public static final String SHARED_PREF_USER = "shared_pref_user";
-    public static final String KEY_USERNAME = "shared_username";
-    public static final String KEY_PASSWORD = "shared_password";
-    public static final String KEY_TOKEN = "shared_token";
-    public static final String KEY_FAVORITE = "shared_pref_favorite";
-    public static final String KEY_ROLE = "shared_pref_role";
-    public static final String KEY_EMAIL = "shared_pref_email";
+    public static final String SHARED_NAME = "shared_name";
+    public static final String SHARED_PASSWORD = "shared_password";
+    public static final String SHARED_TOKEN = "shared_token";
+    public static final String SHARED_ROLE = "shared_role";
+    public static final String SHARED_EMAIL = "shared_email";
+    public static final String SHARED_GENDER = "shared_gender";
 
     /*
     Car type for picking
@@ -65,12 +65,7 @@ public class Constants {
     /*
     Booking status
      */
-    public static final String BOOKING_RESULT_OK = "OK";
-    public static final String BOOKING_RESULT_CHANGED = "CHANGED";
-    public static final String BOOKING_RESULT_PENDING = "RESULT_PENDING";
-    public static final String BOOKING_RESULT_EXIST = "RESULT_EXIST";
-    public static final String BOOKING_RESULT_COLLAPSE = "RESULT_COLLAPSE";
-    public static final String BOOKING_RESULT_FULL = "RESULT_FULL";
-
-
+    public static final String BOOKING_RESULT_PENDING = "PENDING";
+    public static final String BOOKING_RESULT_EXIST = "EXIST";
+    public static final String BOOKING_RESULT_FULL = "FULL";
 }

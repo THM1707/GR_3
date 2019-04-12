@@ -12,36 +12,31 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.thm.gr_application.R;
-import com.thm.gr_application.data.CarDatabase;
-import com.thm.gr_application.model.Car;
-import com.thm.gr_application.model.ParkingLot;
-import com.thm.gr_application.payload.InvoiceResponse;
-import com.thm.gr_application.retrofit.AppServiceClient;
-import com.thm.gr_application.utils.Constants;
-import com.wang.avi.AVLoadingIndicatorView;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import com.bumptech.glide.Glide;
+import com.thm.gr_application.R;
+import com.thm.gr_application.data.CarDatabase;
+import com.thm.gr_application.model.Car;
+import com.thm.gr_application.model.ParkingLot;
+import com.thm.gr_application.payload.InvoiceResponse;
+import com.thm.gr_application.payload.ParkingLotResponse;
+import com.thm.gr_application.retrofit.AppServiceClient;
+import com.thm.gr_application.utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import org.json.JSONObject;
 import retrofit2.HttpException;
 
 public class ParkingLotDetailsActivity extends AppCompatActivity implements View.OnClickListener {
@@ -50,19 +45,16 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
     private ImageButton mImageButton;
     private String mToken;
     private ParkingLot mParkingLot;
-    private List<Long> mFavorites;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private List<Car> mCarList = new ArrayList<>();
     private float mDistance;
     private AVLoadingIndicatorView mProgressView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         setupVariables();
-        initViews(mParkingLot);
     }
 
     @Override
@@ -73,7 +65,8 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
     private void initCarList() {
         CarDatabase carDatabase = CarDatabase.getDatabase(this);
-        Disposable disposable = carDatabase.getCarDao().getAll()
+        Disposable disposable = carDatabase.getCarDao()
+                .getAll()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<List<Car>>() {
@@ -84,7 +77,8 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
                     @Override
                     public void onError(Throwable e) {
-                        Toast.makeText(ParkingLotDetailsActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ParkingLotDetailsActivity.this, e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
         mCompositeDisposable.add(disposable);
@@ -92,18 +86,37 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
     private void setupVariables() {
         Intent intent = getIntent();
-        mParkingLot = (ParkingLot) intent.getSerializableExtra(Constants.EXTRA_PARKING_LOT);
+        Long parkingLotId = intent.getLongExtra(Constants.EXTRA_PARKING_LOT, -1);
         mDistance = intent.getFloatExtra(Constants.EXTRA_DISTANCE, 0f);
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        mToken = sharedPreferences.getString(Constants.SHARED_TOKEN, null);
+        Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                .getParkingLotById(mToken, parkingLotId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<ParkingLotResponse>() {
+                    @Override
+                    public void onSuccess(ParkingLotResponse parkingLotResponse) {
+                        if (parkingLotResponse.getMessage().equals("Is Favorite")) {
+                            isFavorite = true;
+                        } else if (parkingLotResponse.getMessage().equals("Not Favorite")) {
+                            isFavorite = false;
+                        }
+                        mParkingLot = parkingLotResponse.getData();
+                        initViews();
+                    }
 
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
-        mToken = sharedPreferences.getString(Constants.KEY_TOKEN, null);
-        String json = sharedPreferences.getString(Constants.KEY_FAVORITE, null);
-        mFavorites = new Gson().fromJson(json, new TypeToken<List<Long>>() {
-        }.getType());
-        isFavorite = mFavorites.contains(mParkingLot.getId());
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+        mCompositeDisposable.add(disposable);
     }
 
-    private void initViews(ParkingLot parkingLot) {
+    private void initViews() {
         mProgressView = findViewById(R.id.progress_details);
         TextView textCapacity = findViewById(R.id.tv_capacity);
         TextView textAddress = findViewById(R.id.tv_address);
@@ -113,59 +126,69 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
         ImageView imageView = findViewById(R.id.iv_detail);
         Toolbar toolbar = findViewById(R.id.toolbar_details);
         ConstraintLayout layout = findViewById(R.id.cl_details);
+        TextView textStar = findViewById(R.id.tv_star);
         layout.bringChildToFront(toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(parkingLot.getName());
+            actionBar.setTitle(mParkingLot.getName());
         }
         findViewById(R.id.bt_navigate).setOnClickListener(this);
         findViewById(R.id.bt_booking).setOnClickListener(this);
-        textAvailable.setText(parkingLot.getCapacity() - parkingLot.getCurrent() + " left");
-        textCapacity.setText(String.valueOf(parkingLot.getCapacity()));
-        textAddress.setText(parkingLot.getAddress());
+        if (mParkingLot.getStar() != 0f) {
+            textStar.setText(String.format(Locale.getDefault(), "%.1f", mParkingLot.getStar()));
+        }
+        textStar.setOnClickListener(this);
+        textAvailable.setText(mParkingLot.getCapacity() - mParkingLot.getCurrent() + " left");
+        textCapacity.setText(String.valueOf(mParkingLot.getCapacity()));
+        textAddress.setText(mParkingLot.getAddress());
         textActiveTime.setText(getActiveTimeText());
         textDistance.setText(getDistanceText());
-        if (parkingLot.getImage()!= null){
-            Glide.with(this).load(Constants.END_POINT_URL + "/api/image/" +parkingLot.getImage().getId()).into(imageView);
+        if (mParkingLot.getImage() != null) {
+            Glide.with(this)
+                    .load(Constants.END_POINT_URL + "/api/image/" + mParkingLot.getImage().getId())
+                    .into(imageView);
         } else {
             imageView.setImageResource(R.drawable.parking_lot);
         }
         mImageButton = findViewById(R.id.ib_favorite);
-        mImageButton.setImageResource(isFavorite ? R.drawable.ic_favorite_on : R.drawable.ic_favorite_off);
+        mImageButton.setImageResource(
+                isFavorite ? R.drawable.ic_favorite_on : R.drawable.ic_favorite_off);
         mImageButton.setOnClickListener(v -> {
             if (isFavorite) {
-                Disposable disposable = AppServiceClient.getMyApiInstance(this).removeFavorite(mToken, parkingLot.getId())
+                Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                        .removeFavorite(mToken, mParkingLot.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableCompletableObserver() {
                             @Override
                             public void onComplete() {
                                 mImageButton.setImageResource(R.drawable.ic_favorite_off);
-                                changeFavorite(mParkingLot, isFavorite);
                             }
 
                             @Override
                             public void onError(Throwable e) {
-                                Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                        R.string.error_server, Toast.LENGTH_SHORT).show();
                             }
                         });
                 mCompositeDisposable.add(disposable);
             } else {
-                Disposable disposable = AppServiceClient.getMyApiInstance(this).addFavorite(mToken, parkingLot.getId())
+                Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                        .addFavorite(mToken, mParkingLot.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableCompletableObserver() {
                             @Override
                             public void onComplete() {
                                 mImageButton.setImageResource(R.drawable.ic_favorite_on);
-                                changeFavorite(mParkingLot, isFavorite);
                             }
 
                             @Override
                             public void onError(Throwable e) {
-                                Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                        R.string.error_server, Toast.LENGTH_SHORT).show();
                             }
                         });
                 mCompositeDisposable.add(disposable);
@@ -182,20 +205,6 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
     private String getActiveTimeText() {
         return mParkingLot.getOpenTime() + " ~ " + mParkingLot.getCloseTime();
-    }
-
-    private void changeFavorite(ParkingLot parkingLot, boolean b) {
-        if (b) {
-            mFavorites.remove(parkingLot.getId());
-        } else {
-            mFavorites.add(parkingLot.getId());
-        }
-        String json = new Gson().toJson(mFavorites);
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.KEY_FAVORITE, json);
-        editor.apply();
-        isFavorite = !isFavorite;
     }
 
     @Override
@@ -215,7 +224,8 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
     }
 
     public void navigate() {
-        String uriString = String.format(Locale.getDefault(), "google.navigation:q=%f,%f&mode=d", mParkingLot.getLatitude(), mParkingLot.getLongitude());
+        String uriString = String.format(Locale.getDefault(), "google.navigation:q=%f,%f&mode=d",
+                mParkingLot.getLatitude(), mParkingLot.getLongitude());
         Uri uri = Uri.parse(uriString);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
         mapIntent.setPackage("com.google.android.apps.maps");
@@ -229,10 +239,15 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
     public void book() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (mCarList.isEmpty()) {
+            // Show dialog to go to Car Activity to add car
             builder.setMessage(R.string.message_no_car)
-                    .setPositiveButton(R.string.action_ok, (dialog, which) -> ParkingLotDetailsActivity.this.startActivity(new Intent(ParkingLotDetailsActivity.this, CarActivity.class)))
-                    .create().show();
+                    .setPositiveButton(R.string.action_ok,
+                            (dialog, which) -> ParkingLotDetailsActivity.this.startActivity(
+                                    new Intent(ParkingLotDetailsActivity.this, CarActivity.class)))
+                    .create()
+                    .show();
         } else {
+            // Make a new request
             List<String> plateList = new ArrayList<>();
             for (Car c : mCarList) {
                 plateList.add(c.getLicensePlate());
@@ -240,28 +255,26 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
             String[] plateArray = plateList.toArray(new String[0]);
             View layout = getLayoutInflater().inflate(R.layout.dialog_booking, null);
             Spinner carSpinner = layout.findViewById(R.id.spinner_plate);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, plateArray);
+            ArrayAdapter<String> adapter =
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                            plateArray);
             carSpinner.setAdapter(adapter);
             builder.setView(layout);
             AlertDialog dialog = builder.create();
             layout.findViewById(R.id.bt_booking).setOnClickListener(v -> {
                 mProgressView.show();
                 Disposable disposable = AppServiceClient.getMyApiInstance(this)
-                        .requestBooking(mToken, mParkingLot.getId(), carSpinner.getSelectedItem().toString())
+                        .requestBooking(mToken, mParkingLot.getId(),
+                                carSpinner.getSelectedItem().toString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                             @Override
                             public void onSuccess(InvoiceResponse invoiceResponse) {
                                 mProgressView.hide();
-                                switch (invoiceResponse.getMessage()) {
-                                    case Constants.BOOKING_RESULT_OK:
-                                        Toast.makeText(ParkingLotDetailsActivity.this, R.string.message_booking_success, Toast.LENGTH_SHORT).show();
-                                        break;
-                                    case Constants.BOOKING_RESULT_CHANGED:
-                                        Toast.makeText(ParkingLotDetailsActivity.this, R.string.message_booking_change, Toast.LENGTH_SHORT).show();
-                                        break;
-                                }
+                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                        R.string.message_booking_success, Toast.LENGTH_SHORT)
+                                        .show();
                             }
 
                             @Override
@@ -269,30 +282,34 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
                                 mProgressView.hide();
                                 if (e instanceof HttpException) {
                                     try {
-                                        JSONObject jObjError = new JSONObject(((HttpException) e).response().errorBody().string());
+                                        JSONObject jObjError = new JSONObject(
+                                                ((HttpException) e).response()
+                                                        .errorBody()
+                                                        .string());
                                         switch (jObjError.getString("message")) {
                                             case Constants.BOOKING_RESULT_PENDING:
-                                                Toast.makeText(ParkingLotDetailsActivity.this, "You still have pending booking", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                                        R.string.message_already_booking,
+                                                        Toast.LENGTH_SHORT).show();
                                                 break;
                                             case Constants.BOOKING_RESULT_EXIST:
-                                                Toast.makeText(ParkingLotDetailsActivity.this, "You already book here", Toast.LENGTH_SHORT).show();
-                                                break;
-                                            case Constants.BOOKING_RESULT_COLLAPSE:
-                                                Toast.makeText(ParkingLotDetailsActivity.this, "Someone else already booked with this license plate", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                                        R.string.message_plate_already_exist,
+                                                        Toast.LENGTH_SHORT).show();
                                                 break;
                                             case Constants.BOOKING_RESULT_FULL:
-                                                Toast.makeText(ParkingLotDetailsActivity.this, "Sorry no more slot left", Toast.LENGTH_SHORT).show();
-                                                break;
-
-                                            default:
-                                                Toast.makeText(ParkingLotDetailsActivity.this, "DEFAULT", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                                        R.string.message_full_slot,
+                                                        Toast.LENGTH_SHORT).show();
                                                 break;
                                         }
                                     } catch (Exception ex) {
-                                        Toast.makeText(ParkingLotDetailsActivity.this, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ParkingLotDetailsActivity.this,
+                                                ex.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
-                                    Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ParkingLotDetailsActivity.this,
+                                            R.string.error_server, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -312,8 +329,18 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
             case R.id.bt_navigate:
                 navigate();
                 break;
+            case R.id.tv_star:
+                startReviewActivity();
+                break;
             default:
                 break;
         }
+    }
+
+    private void startReviewActivity() {
+        Intent intent = new Intent(this, ReviewActivity.class);
+        intent.putExtra(Constants.EXTRA_PARKING_LOT, mParkingLot.getId());
+        intent.putExtra(Constants.EXTRA_PARKING_LOT_NAME, mParkingLot.getName());
+        startActivity(intent);
     }
 }

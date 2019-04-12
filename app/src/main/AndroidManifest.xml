@@ -3,11 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.thm.gr_application">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
+        tools:replace="android:allowBackup"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -15,37 +16,39 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".activity.ReviewActivity">
+        </activity>
         <activity
             android:name=".activity.ManagerActivity"
             android:label="@string/title_activity_manager"/>
-        <activity android:name=".activity.PendingActivity" />
-        <activity android:name=".activity.AccountManagementActivity" />
-        <activity android:name=".activity.NavDrawerActivity" />
-        <activity android:name=".activity.CarActivity" />
+        <activity android:name=".activity.PendingActivity"/>
+        <activity android:name=".activity.ProfileActivity"/>
+        <activity android:name=".activity.NavDrawerActivity"/>
+        <activity android:name=".activity.CarActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="@string/google_maps_key"/>
         <meta-data
             android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
+            android:resource="@array/preloaded_fonts"/>
 
         <activity
             android:name=".activity.BookmarkActivity"
-            android:parentActivityName=".activity.MapsActivity" />
-        <activity android:name=".activity.ParkingLotDetailsActivity" />
+            android:parentActivityName=".activity.MapsActivity"/>
+        <activity android:name=".activity.ParkingLotDetailsActivity"/>
         <activity
             android:name=".activity.MapsActivity"
             android:label="@string/title_activity_maps"
-            android:launchMode="singleTop" />
-        <activity android:name=".activity.SignUpActivity" />
+            android:launchMode="singleTop"/>
+        <activity android:name=".activity.SignUpActivity"/>
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
     </application>

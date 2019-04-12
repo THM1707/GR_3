@@ -45,6 +45,13 @@ public class ParkingLot implements Serializable {
     @Expose
     private Image image;
 
+    @Expose
+    private float star;
+
+    @Expose
+    @SerializedName("reviewCount")
+    private int reviewCount;
+
     public String getName() {
         return mName;
     }
@@ -123,6 +130,22 @@ public class ParkingLot implements Serializable {
 
     public void setCurrent(int current) {
         this.current = current;
+    }
+
+    public float getStar() {
+        return star;
+    }
+
+    public void setStar(float star) {
+        this.star = star;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     public class Image implements Serializable{

@@ -16,16 +16,16 @@ public class CredentialResponse {
     private String role;
 
     @Expose
-    @SerializedName("username")
-    private String username;
+    @SerializedName("name")
+    private String name;
 
     @Expose
     @SerializedName("email")
     private String email;
 
     @Expose
-    @SerializedName("favorites")
-    private List<Long> favorites;
+    @SerializedName("gender")
+    private int gender;
 
     @Expose
     @SerializedName("property")
@@ -47,14 +47,6 @@ public class CredentialResponse {
         this.role = role;
     }
 
-    public List<Long> getFavorites() {
-        return favorites;
-    }
-
-    public void setFavorites(List<Long> favorites) {
-        this.favorites = favorites;
-    }
-
     public ParkingLot getProperty() {
         return property;
     }
@@ -63,19 +55,27 @@ public class CredentialResponse {
         this.property = property;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

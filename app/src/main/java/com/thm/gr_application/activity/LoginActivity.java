@@ -3,22 +3,18 @@ package com.thm.gr_application.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.gson.Gson;
+import androidx.appcompat.app.AppCompatActivity;
+import com.bumptech.glide.Glide;
 import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.CredentialResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.wang.avi.AVLoadingIndicatorView;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -61,7 +57,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 mProgressView.show();
                 String username = mUsernameView.getText().toString();
                 String password = mPasswordView.getText().toString();
-                Disposable disposable = AppServiceClient.getMyApiInstance(this).login(username, password)
+                Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                        .login(username, password)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableSingleObserver<CredentialResponse>() {
@@ -69,8 +66,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             public void onSuccess(CredentialResponse credentialResponse) {
                                 mProgressView.hide();
                                 storeValues(password, credentialResponse);
-                                if (credentialResponse.getRole().equals(getString(R.string.role_user))) {
-                                    startMapActivity(credentialResponse.getAccessToken());
+                                if (credentialResponse.getRole()
+                                        .equals(getString(R.string.role_user))) {
+                                    startMapActivity();
                                 } else {
                                     startManagerActivity(credentialResponse.getProperty());
                                 }
@@ -80,9 +78,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             public void onError(Throwable e) {
                                 mProgressView.hide();
                                 if (e instanceof HttpException) {
-                                    Toast.makeText(LoginActivity.this, R.string.error_bad_credential, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this,
+                                            R.string.error_bad_credential, Toast.LENGTH_SHORT)
+                                            .show();
                                 } else {
-                                    Toast.makeText(LoginActivity.this, R.string.error_sign_in, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, R.string.error_sign_in,
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -93,39 +94,38 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void startManagerActivity(ParkingLot property) {
-        Intent intent = new Intent(this, ManagerActivity.class);
-        intent.putExtra(Constants.EXTRA_PROPERTY, property);
-        startActivity(intent);
-        finish();
-    }
-
-    private void storeValues(String password, CredentialResponse response) {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String accessToken = response.getAccessToken();
-        String json = new Gson().toJson(response.getFavorites());
-        String role = response.getRole();
-        String username = response.getUsername();
-        String email = response.getEmail();
-        editor.putString(Constants.KEY_PASSWORD, password);
-        editor.putString(Constants.KEY_USERNAME, username);
-        editor.putString(Constants.KEY_EMAIL, email);
-        editor.putString(Constants.KEY_TOKEN, "Bearer " + accessToken);
-        editor.putString(Constants.KEY_FAVORITE, json);
-        editor.putString(Constants.KEY_ROLE, role);
-        editor.apply();
-    }
-
     @Override
     protected void onStop() {
         mCompositeDisposable.clear();
         super.onStop();
     }
 
-    private void startMapActivity(String token) {
-        Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra(Constants.EXTRA_TOKEN, "Bearer " + token);
+    private void storeValues(String password, CredentialResponse response) {
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String accessToken = response.getAccessToken();
+        String role = response.getRole();
+        String email = response.getEmail();
+        String name = response.getName();
+        int gender = response.getGender();
+        editor.putString(Constants.SHARED_PASSWORD, password);
+        editor.putString(Constants.SHARED_NAME, name);
+        editor.putString(Constants.SHARED_EMAIL, email);
+        editor.putString(Constants.SHARED_TOKEN, "Bearer " + accessToken);
+        editor.putString(Constants.SHARED_ROLE, role);
+        editor.putInt(Constants.SHARED_GENDER, gender);
+        editor.apply();
+    }
+
+    private void startMapActivity() {
+        startActivity(new Intent(this, MapsActivity.class));
+        finish();
+    }
+
+    private void startManagerActivity(ParkingLot property) {
+        Intent intent = new Intent(this, ManagerActivity.class);
+        intent.putExtra(Constants.EXTRA_PROPERTY, property);
         startActivity(intent);
         finish();
     }

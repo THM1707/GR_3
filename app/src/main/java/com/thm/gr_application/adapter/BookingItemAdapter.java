@@ -33,7 +33,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.ViewHolder> implements Filterable {
+public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.ViewHolder>
+        implements Filterable {
 
     private List<Invoice> mActiveList;
     private Context mContext;
@@ -43,7 +44,8 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
     private boolean doShowHistory;
     private ParkingLotChangedListener mListenter;
 
-    public BookingItemAdapter(Context context, List<Invoice> items, List<Invoice> allList, ParkingLotChangedListener listener) {
+    public BookingItemAdapter(Context context, List<Invoice> items, List<Invoice> allList,
+            ParkingLotChangedListener listener) {
         mContext = context;
         mActiveList = items;
         mInvoiceListFiltered = items;
@@ -92,10 +94,11 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
         } else {
             holder.mBookImage.setVisibility(View.INVISIBLE);
         }
-        String createDateString = DateUtils.getFormattedDateStringFromISOString(mContext, invoice.getCreatedDate());
+        String createDateString =
+                DateUtils.getFormattedDateTimeStringFromISOString(invoice.getCreatedDate());
         String endDateString = "";
         if (invoice.getEndDate() != null) {
-            endDateString = DateUtils.getFormattedDateStringFromISOString(mContext, invoice.getEndDate());
+            endDateString = DateUtils.getFormattedDateTimeStringFromISOString(invoice.getEndDate());
         }
         switch (invoice.getStatus()) {
             case Constants.STATUS_ACTIVE:
@@ -104,7 +107,9 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
                 holder.mActionButton.setVisibility(View.VISIBLE);
                 holder.mActionButton.setImageResource(R.drawable.ic_error_24dp);
                 holder.mCreateTimeText.setText(createDateString);
-                holder.setListener((v, position1) -> showAlert(mContext.getString(R.string.alert_withdraw, invoice.getPlate()), (dialog, which) -> withdraw(holder, invoice, position1)));
+                holder.setListener((v, position1) -> showAlert(
+                        mContext.getString(R.string.alert_withdraw, invoice.getPlate()),
+                        (dialog, which) -> withdraw(holder, invoice, position1)));
                 break;
             case Constants.STATUS_CANCEL:
                 holder.mStatusText.setText("C");
@@ -126,7 +131,9 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
                 holder.mStatusText.setText("P");
                 holder.mStatusText.setBackgroundResource(R.drawable.rounded_pending);
                 holder.mCreateTimeText.setText(createDateString);
-                holder.setListener((v, position1) -> showAlert(mContext.getString(R.string.alert_accept, invoice.getPlate()), (dialog, which) -> accept(holder, invoice)));
+                holder.setListener((v, position1) -> showAlert(
+                        mContext.getString(R.string.alert_accept, invoice.getPlate()),
+                        (dialog, which) -> accept(holder, invoice)));
                 break;
             default:
                 holder.mEndTimeText.setText("DEAD");
@@ -136,14 +143,15 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
 
     private void showAlert(String message, DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setMessage(message)
-                .setPositiveButton(R.string.action_ok, listener)
-                .create().show();
+        builder.setMessage(message).setPositiveButton(R.string.action_ok, listener).create().show();
     }
 
     private void accept(ViewHolder holder, Invoice invoice) {
-        String token = mContext.getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
-        Disposable disposable = AppServiceClient.getMyApiInstance(mContext).acceptBooking(token, invoice.getId())
+        String token =
+                mContext.getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE)
+                        .getString(Constants.SHARED_TOKEN, null);
+        Disposable disposable = AppServiceClient.getMyApiInstance(mContext)
+                .acceptBooking(token, invoice.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
@@ -152,7 +160,9 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
                         holder.mStatusText.setText("A");
                         holder.mStatusText.setBackgroundResource(R.drawable.rounded_active);
                         holder.mActionButton.setImageResource(R.drawable.ic_error_24dp);
-                        holder.setListener((v, position1) -> showAlert(mContext.getString(R.string.alert_withdraw, invoice.getPlate()), (dialog, which) -> withdraw(holder, invoice, position1)));
+                        holder.setListener((v, position1) -> showAlert(
+                                mContext.getString(R.string.alert_withdraw, invoice.getPlate()),
+                                (dialog, which) -> withdraw(holder, invoice, position1)));
                         changeInvoice(mActiveList, invoice, invoiceResponse.getInvoice());
                         changeInvoice(mAllList, invoice, invoiceResponse.getInvoice());
                         mListenter.onParkingLotChange(invoiceResponse.getParkingLot());
@@ -170,17 +180,21 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
         list.set(list.indexOf(from), to);
     }
 
-
     private void withdraw(ViewHolder holder, Invoice invoice, int position) {
-        String token = mContext.getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE).getString(Constants.KEY_TOKEN, null);
-        Disposable disposable = AppServiceClient.getMyApiInstance(mContext).withdraw(token, invoice.getId())
+        String token =
+                mContext.getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE)
+                        .getString(Constants.SHARED_TOKEN, null);
+        Disposable disposable = AppServiceClient.getMyApiInstance(mContext)
+                .withdraw(token, invoice.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                     @Override
                     public void onSuccess(InvoiceResponse invoiceResponse) {
                         if (doShowHistory) {
-                            holder.mEndTimeText.setText(DateUtils.getFormattedDateStringFromISOString(mContext, invoiceResponse.getInvoice().getEndDate()));
+                            holder.mEndTimeText.setText(
+                                    DateUtils.getFormattedDateTimeStringFromISOString(
+                                            invoiceResponse.getInvoice().getEndDate()));
                             holder.mStatusText.setText("D");
                             holder.mStatusText.setBackgroundResource(R.drawable.rounded_done);
                             holder.mActionButton.setVisibility(View.INVISIBLE);
@@ -272,11 +286,9 @@ public class BookingItemAdapter extends RecyclerView.Adapter<BookingItemAdapter.
         public void onClick(View v) {
             mClickListener.action(v, getAdapterPosition());
         }
-
     }
 
     public interface ParkingLotChangedListener {
         void onParkingLotChange(ParkingLot parkingLot);
     }
-
 }
