@@ -27,7 +27,7 @@
                 />
             <TextView
                 android:id="@+id/tv_address"
-                android:layout_width="300dp"
+                android:layout_width="256dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:hint="Thanh pho Ha Noi"
@@ -37,22 +37,32 @@
                 />
         </LinearLayout>
         <TextView
-            android:gravity="center"
             android:id="@+id/tv_available"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:gravity="center"
             android:hint="Available: 0 slots"
             />
-        <TextView
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="16dp"
+            android:orientation="horizontal"
+            android:gravity="center"
             android:layout_marginTop="16dp"
-            android:text="Click for more details"
-            android:textColor="@color/colorAccent"
-            android:textStyle="italic"
-            />
+            >
+            <TextView
+                android:id="@+id/tv_review"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Star"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_star"
+                />
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -115,4 +115,11 @@
         android:layout_height="wrap_content"
         app:barrierDirection="end"
         tools:layout_editor_absoluteX="379dp" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="textView6, tv_end_time"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

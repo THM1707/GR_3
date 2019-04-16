@@ -8,19 +8,22 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        tools:replace="android:allowBackup"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activity.ReviewActivity">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:allowBackup">
+        <activity android:name=".activity.FirebaseActivity">
+
         </activity>
-        <activity
-            android:name=".activity.ManagerActivity"
-            android:label="@string/title_activity_manager"/>
+        <activity android:name=".activity.PropertyInfoActivity"/>
+        <activity android:name=".activity.StatisticActivity"/>
+        <activity android:name=".activity.InvoiceHistoryActivity"/>
+        <activity android:name=".activity.ManageActivity"/>
+        <activity android:name=".activity.ReviewActivity"/>
         <activity android:name=".activity.PendingActivity"/>
         <activity android:name=".activity.ProfileActivity"/>
         <activity android:name=".activity.NavDrawerActivity"/>

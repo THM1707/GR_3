@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -46,6 +47,13 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -57,23 +65,16 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.thm.gr_application.R;
-import com.thm.gr_application.model.ParkingLot;
-import com.thm.gr_application.payload.ParkingLotsResponse;
-import com.thm.gr_application.retrofit.AppServiceClient;
+import com.thm.gr_application.model.ParkingData;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.ImageUtils;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableSingleObserver;
-import io.reactivex.schedulers.Schedulers;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.joda.time.DateTime;
-import retrofit2.HttpException;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, View.OnClickListener,
@@ -85,11 +86,10 @@ public class MapsActivity extends AppCompatActivity
     private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
     private static final int REQUEST_GPS_CODE = 101;
     private boolean isLocationPermissionGranted;
-    private boolean isMarkersReady = false;
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private List<ParkingLot> mParkingLotList = new ArrayList<>();
-    private Map<Marker, ParkingLot> mMarkerParkingLotMap = new HashMap<>();
+    private Map<String, ParkingData> mIdParkingMap = new HashMap<>();
+    private BiMap<Marker, Long> mMarkerIdMap = HashBiMap.create();
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private View mLocationButton;
@@ -103,10 +103,66 @@ public class MapsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setupDefaultLocation();
+        setupFirebaseDatabase();
         initViews();
         initGoogleServices();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        getParkingLotList();
+    }
+
+    private void setupFirebaseDatabase() {
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("parking");
+        database.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                ParkingData parkingData = dataSnapshot.getValue(ParkingData.class);
+                String id = dataSnapshot.getKey();
+                if (id != null && parkingData != null) {
+                    mIdParkingMap.put(id, parkingData);
+                    createMarker(parkingData);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String id = dataSnapshot.getKey();
+                ParkingData parkingData = dataSnapshot.getValue(ParkingData.class);
+                if (id != null && parkingData != null) {
+                    mIdParkingMap.put(id, parkingData);
+                    Marker marker = mMarkerIdMap.inverse().get(parkingData.getId());
+                    if (marker != null) {
+                        marker.setIcon(BitmapDescriptorFactory.fromBitmap(
+                                ImageUtils.getParkingBitmapFromVectorDrawable(MapsActivity.this,
+                                        parkingData.getAvailable() == 0 ? R.drawable.ic_marker
+                                                : R.drawable.ic_marker_2)));
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void createMarker(ParkingData parkingData) {
+        Marker m = mMap.addMarker(new MarkerOptions().position(
+                new LatLng(parkingData.getLatitude(), parkingData.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(
+                        ImageUtils.getParkingBitmapFromVectorDrawable(this,
+                                parkingData.getAvailable() == 0 ? R.drawable.ic_marker
+                                        : R.drawable.ic_marker_2))));
+        mMarkerIdMap.put(m, parkingData.getId());
     }
 
     private void setupDefaultLocation() {
@@ -116,6 +172,9 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void initViews() {
+        FloatingActionButton floatingActionButton = findViewById(R.id.fab_my_location);
+        floatingActionButton.setOnClickListener(this);
+        floatingActionButton.setColorFilter(Color.WHITE);
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
         findViewById(R.id.tv_place_search).setOnClickListener(this);
         setupNavigationDrawer();
@@ -129,7 +188,7 @@ public class MapsActivity extends AppCompatActivity
         String email = sharedPreferences.getString(Constants.SHARED_EMAIL, null);
         int gender = sharedPreferences.getInt(Constants.SHARED_GENDER, 0);
         AccountHeader headerResult = new AccountHeaderBuilder().withActivity(this)
-                .withHeaderBackground(R.drawable.login_background)
+                .withHeaderBackground(R.drawable.background)
                 .addProfiles(new ProfileDrawerItem().withName(name)
                         .withEmail(email)
                         .withIcon(getResources().getDrawable(
@@ -187,51 +246,11 @@ public class MapsActivity extends AppCompatActivity
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(this);
         }
-        FloatingActionButton floatingActionButton = findViewById(R.id.fab_my_location);
-        floatingActionButton.setOnClickListener(this);
-        floatingActionButton.setColorFilter(Color.WHITE);
 
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(),
                     getResources().getString(R.string.google_maps_key));
         }
-    }
-
-    private void getParkingLotList() {
-        // Lay list parking lot tu server de tao markers
-        String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
-                Constants.SHARED_TOKEN, null);
-        Disposable disposable = AppServiceClient.getMyApiInstance(this)
-                .getParkingLots(token)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<ParkingLotsResponse>() {
-                    @Override
-                    public void onSuccess(ParkingLotsResponse parkingLotsResponse) {
-                        mParkingLotList = parkingLotsResponse.getData();
-                        if (mMap != null) {
-                            createMarkers();
-                            isMarkersReady = true;
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (e instanceof HttpException) {
-                            if (((HttpException) e).code() == 401) {
-                                Toast.makeText(MapsActivity.this, R.string.error_session,
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(MapsActivity.this, R.string.error_server,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(MapsActivity.this, R.string.error_server,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-        mCompositeDisposable.add(disposable);
     }
 
     @Override
@@ -287,9 +306,6 @@ public class MapsActivity extends AppCompatActivity
             Log.e(TAG, "Can't find style. Error: ", e);
         }
         mMap.setOnMarkerClickListener(this);
-        if (!isMarkersReady) {
-            createMarkers();
-        }
     }
 
     private void checkGps() {
@@ -388,19 +404,6 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
-    private void createMarkers() {
-        for (ParkingLot p : mParkingLotList) {
-            Marker m = mMap.addMarker(
-                    new MarkerOptions().position(new LatLng(p.getLatitude(), p.getLongitude()))
-                            .icon(BitmapDescriptorFactory.fromBitmap(
-                                    ImageUtils.getParkingBitmapFromVectorDrawable(this)))
-                            .title(p.getName())
-                            .snippet(
-                                    "Available: " + (p.getCapacity() - p.getCurrent()) + " slots"));
-            mMarkerParkingLotMap.put(m, p);
-        }
-    }
-
     @Override
     public boolean onMarkerClick(Marker marker) {
         marker.showInfoWindow();
@@ -414,9 +417,9 @@ public class MapsActivity extends AppCompatActivity
         markerLocation.setLatitude(marker.getPosition().latitude);
         markerLocation.setLongitude(marker.getPosition().longitude);
         float distance = mCurrentLocation.distanceTo(markerLocation);
-        ParkingLot p = mMarkerParkingLotMap.get(marker);
+        Long id = mMarkerIdMap.get(marker);
         Intent intent = new Intent(this, ParkingLotDetailsActivity.class);
-        intent.putExtra(Constants.EXTRA_PARKING_LOT, p.getId());
+        intent.putExtra(Constants.EXTRA_PARKING_LOT, id);
         intent.putExtra(Constants.EXTRA_DISTANCE, distance);
         startActivity(intent);
     }
@@ -556,8 +559,17 @@ public class MapsActivity extends AppCompatActivity
         public View getInfoContents(Marker marker) {
             TextView addressText = mWindow.findViewById(R.id.tv_address);
             TextView availableText = mWindow.findViewById(R.id.tv_available);
-            addressText.setText(marker.getTitle());
-            availableText.setText(marker.getSnippet());
+            TextView reviewText = mWindow.findViewById(R.id.tv_review);
+            Long id = mMarkerIdMap.get(marker);
+            ParkingData parkingData = mIdParkingMap.get(String.valueOf(id));
+            if (parkingData != null) {
+                addressText.setText(parkingData.getName());
+                availableText.setText(String.format(Locale.getDefault(), "Available: %d slots",
+                        parkingData.getAvailable()));
+                reviewText.setText(parkingData.getStar() == 0f ? "NA"
+                        : String.format(Locale.getDefault(), "Review: %.1f",
+                                parkingData.getStar()));
+            }
             return mWindow;
         }
     }

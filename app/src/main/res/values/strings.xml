@@ -114,4 +114,6 @@
     <string name="message_no_comment">Click here to add your comment</string>
     <string name="prompt_no_review">No review yet</string>
     <string name="prompt_all_review">All reviews</string>
+    <string name="prompt_all_car">All car</string>
+    <string name="prompt_no_car">Parking lot empty</string>
 </resources>

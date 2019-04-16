@@ -7,13 +7,13 @@ import java.util.List;
 
 public class InvoiceIndexResponse {
     @Expose
-    List<Invoice> active;
+    private List<Invoice> active;
 
     @Expose
-    List<Invoice> ended;
+    private List<Invoice> ended;
 
     @Expose
-    List<Invoice> all;
+    private List<Invoice> all;
 
     public List<Invoice> getActive() {
         return active;

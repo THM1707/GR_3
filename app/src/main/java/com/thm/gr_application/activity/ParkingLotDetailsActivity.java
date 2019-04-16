@@ -48,6 +48,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private List<Car> mCarList = new ArrayList<>();
     private float mDistance;
+    private Long mId;
     private AVLoadingIndicatorView mProgressView;
 
     @Override
@@ -61,6 +62,33 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
     protected void onResume() {
         super.onResume();
         initCarList();
+        getData();
+    }
+
+    private void getData() {
+        Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                .getParkingLotById(mToken, mId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<ParkingLotResponse>() {
+                    @Override
+                    public void onSuccess(ParkingLotResponse parkingLotResponse) {
+                        if (parkingLotResponse.getMessage().equals("Is Favorite")) {
+                            isFavorite = true;
+                        } else if (parkingLotResponse.getMessage().equals("Not Favorite")) {
+                            isFavorite = false;
+                        }
+                        mParkingLot = parkingLotResponse.getData();
+                        initViews();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+        mCompositeDisposable.add(disposable);
     }
 
     private void initCarList() {
@@ -86,34 +114,11 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
     private void setupVariables() {
         Intent intent = getIntent();
-        Long parkingLotId = intent.getLongExtra(Constants.EXTRA_PARKING_LOT, -1);
+        mId = intent.getLongExtra(Constants.EXTRA_PARKING_LOT, -1);
         mDistance = intent.getFloatExtra(Constants.EXTRA_DISTANCE, 0f);
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         mToken = sharedPreferences.getString(Constants.SHARED_TOKEN, null);
-        Disposable disposable = AppServiceClient.getMyApiInstance(this)
-                .getParkingLotById(mToken, parkingLotId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<ParkingLotResponse>() {
-                    @Override
-                    public void onSuccess(ParkingLotResponse parkingLotResponse) {
-                        if (parkingLotResponse.getMessage().equals("Is Favorite")) {
-                            isFavorite = true;
-                        } else if (parkingLotResponse.getMessage().equals("Not Favorite")) {
-                            isFavorite = false;
-                        }
-                        mParkingLot = parkingLotResponse.getData();
-                        initViews();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-        mCompositeDisposable.add(disposable);
     }
 
     private void initViews() {

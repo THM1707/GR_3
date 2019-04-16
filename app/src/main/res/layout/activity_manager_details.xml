@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -151,7 +151,7 @@
         android:layout_marginEnd="16dp"
         android:drawablePadding="8dp"
         android:gravity="center_vertical"
-        android:drawableStart="@drawable/ic_logo"
+        android:drawableStart="@drawable/ic_coordinate"
         android:text="@string/title_coordinates"
         app:layout_constraintBottom_toBottomOf="@+id/tv_coordinates"
         app:layout_constraintEnd_toStartOf="@+id/tv_coordinates"

@@ -59,8 +59,10 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_review);
         mSharedPreferences = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         mParkingLotId = getIntent().getLongExtra(Constants.EXTRA_PARKING_LOT, -1);
-        String role = mSharedPreferences.getString(Constants.SHARED_ROLE, "");
-        isManager = role.equals(getResources().getString(R.string.role_manager));
+        String role = mSharedPreferences.getString(Constants.SHARED_ROLE, null);
+        if (role != null) {
+            isManager = role.equals(getResources().getString(R.string.role_manager));
+        }
         initViews();
         getData();
     }

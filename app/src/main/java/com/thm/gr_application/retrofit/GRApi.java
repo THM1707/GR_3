@@ -3,6 +3,7 @@ package com.thm.gr_application.retrofit;
 import com.thm.gr_application.payload.CredentialResponse;
 import com.thm.gr_application.payload.InvoiceIndexResponse;
 import com.thm.gr_application.payload.InvoiceResponse;
+import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.payload.MessageResponse;
 import com.thm.gr_application.payload.ParkingLotResponse;
 import com.thm.gr_application.payload.ParkingLotsResponse;
@@ -103,4 +104,10 @@ public interface GRApi {
 
     @DELETE("api/user/review/{id}")
     Completable deleteReview(@Header("Authorization") String authToken, @Path("id") Long id);
+
+    @GET("api/invoice/manager/active")
+    Single<InvoicesResponse> getActiveInvoices(@Header("Authorization") String authToken);
+
+    @GET("api/invoice/manager/done")
+    Single<InvoicesResponse> getDoneInvoices(@Header("Authorization") String authToken);
 }

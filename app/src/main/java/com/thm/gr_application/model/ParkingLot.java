@@ -52,6 +52,9 @@ public class ParkingLot implements Serializable {
     @SerializedName("reviewCount")
     private int reviewCount;
 
+    @Expose
+    private int pending;
+
     public String getName() {
         return mName;
     }
@@ -146,6 +149,14 @@ public class ParkingLot implements Serializable {
 
     public void setReviewCount(int reviewCount) {
         this.reviewCount = reviewCount;
+    }
+
+    public int getPending() {
+        return pending;
+    }
+
+    public void setPending(int pending) {
+        this.pending = pending;
     }
 
     public class Image implements Serializable{

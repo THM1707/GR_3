@@ -11,8 +11,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import com.thm.gr_application.R;
 
 public class ImageUtils {
-    public static Bitmap getParkingBitmapFromVectorDrawable(Context context) {
-        Drawable drawable = ContextCompat.getDrawable(context, R.drawable.ic_marker_2);
+    public static Bitmap getParkingBitmapFromVectorDrawable(Context context, int source) {
+        Drawable drawable = ContextCompat.getDrawable(context, source);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             drawable = (DrawableCompat.wrap(drawable)).mutate();
         }

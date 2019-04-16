@@ -8,7 +8,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
 import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.CredentialResponse;
@@ -124,7 +123,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void startManagerActivity(ParkingLot property) {
-        Intent intent = new Intent(this, ManagerActivity.class);
+        Intent intent = new Intent(this, ManageActivity.class);
         intent.putExtra(Constants.EXTRA_PROPERTY, property);
         startActivity(intent);
         finish();

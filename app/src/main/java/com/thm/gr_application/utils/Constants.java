@@ -44,6 +44,10 @@ public class Constants {
     public static final long MAP_ITEM_HELP = 2;
     public static final long MAP_ITEM_MANAGER = 3;
     public static final long MAP_ITEM_PENDING = 4;
+    public static final long MANAGE_ITEM_HISTORY = 5;
+    public static final long MANAGE_ITEM_STATISTIC = 6;
+    public static final long MANAGE_ITEM_DETAILS = 7;
+
 
     /*
     Invoice Status

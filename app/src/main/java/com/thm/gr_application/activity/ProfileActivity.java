@@ -172,10 +172,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     public void onSuccess(MessageResponse messageResponse) {
                         mGenderImage.setImageResource(request.getGender() == 0 ? R.drawable.ic_male
                                 : R.drawable.ic_female);
+                        mName = request.getName();
+                        mPhone = request.getPhone();
                         SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).edit();
                         editor.putInt(Constants.SHARED_GENDER, request.getGender());
+                        editor.putString(Constants.SHARED_NAME, mName);
                         editor.apply();
-                        mName = request.getName();
+                        mNameText.setText(mName);
+                        mPhoneText.setText(mPhone);
                         Toast.makeText(ProfileActivity.this, R.string.message_edit_profile_success,
                                 Toast.LENGTH_SHORT).show();
                     }

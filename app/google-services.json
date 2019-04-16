@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "238508140170",
+    "firebase_url": "https://gr-project-1707.firebaseio.com",
+    "project_id": "gr-project-1707",
+    "storage_bucket": "gr-project-1707.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238508140170:android:9cf33d334f23237f",
+        "android_client_info": {
+          "package_name": "com.thm.gr_application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "238508140170-de5vbjcopjlov6jlp5om4lv4oc4d44e8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6_mUdI3k3z0VYEuI_8IdEE1Z1SvfS-jk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "238508140170-de5vbjcopjlov6jlp5om4lv4oc4d44e8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
