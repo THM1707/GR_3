@@ -24,6 +24,7 @@ import com.thm.gr_application.payload.InvoiceResponse;
 import com.thm.gr_application.payload.MessageResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.thm.gr_application.utils.NumberUtils;
 import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -44,8 +45,10 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
     private TextView mDateText;
     private TextView mPlateText;
     private TextView mEmptyText;
+    private TextView mDurationText;
     private LinearLayout mEmptyLayout;
     private Invoice mInvoice;
+    private ParkingLot mParkingLot;
     private ImageView mEmptyImage;
     private Group mGroup;
     private List<Car> mCarList = new ArrayList<>();
@@ -96,8 +99,10 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                             mGroup.setVisibility(View.VISIBLE);
                             mEmptyLayout.setVisibility(View.GONE);
                             mInvoice = invoiceResponse.getInvoice();
-                            ParkingLot p = invoiceResponse.getParkingLot();
-                            mAddressText.setText(p.getAddress());
+                            mParkingLot = invoiceResponse.getParkingLot();
+                            mAddressText.setText(mParkingLot.getAddress());
+                            mDurationText.setText(String.format(Locale.getDefault(), "%d h",
+                                    mInvoice.getDuration()));
                             DateTime date = new DateTime(mInvoice.getCreatedDate());
                             DateTime.Property pDoW = date.dayOfWeek();
                             String strTF = pDoW.getAsText(Locale.getDefault());
@@ -141,6 +146,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
         mPlateText = findViewById(R.id.tv_plate);
         mEmptyLayout = findViewById(R.id.ll_history);
         mEmptyImage = findViewById(R.id.iv_empty);
+        mDurationText = findViewById(R.id.tv_duration);
         findViewById(R.id.bt_cancel).setOnClickListener(this);
         findViewById(R.id.bt_change).setOnClickListener(this);
     }
@@ -184,16 +190,25 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
             String[] plateArray = plateList.toArray(new String[0]);
             View layout = getLayoutInflater().inflate(R.layout.dialog_booking, null);
             Spinner carSpinner = layout.findViewById(R.id.spinner_plate);
-            ArrayAdapter<String> adapter =
+            Spinner timeSpinner = layout.findViewById(R.id.spinner_time);
+            String[] timeArray = getTimeArray();
+            if (timeArray.length == 0) {
+                Toast.makeText(this, R.string.message_close, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            carSpinner.setAdapter(
                     new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
-                            plateArray);
-            carSpinner.setAdapter(adapter);
+                            plateArray));
+            timeSpinner.setAdapter(
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                            timeArray));
             builder.setView(layout);
             AlertDialog dialog = builder.create();
             layout.findViewById(R.id.bt_booking).setOnClickListener(v -> {
                 String plate = carSpinner.getSelectedItem().toString();
+                int duration = timeSpinner.getSelectedItemPosition() + 1;
                 Disposable disposable = AppServiceClient.getMyApiInstance(this)
-                        .changeReservePlate(token, mInvoice.getId(), plate)
+                        .changeReservePlate(token, mInvoice.getId(), plate, duration)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableSingleObserver<MessageResponse>() {
@@ -203,6 +218,8 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                                         R.string.message_reserve_changed, Toast.LENGTH_SHORT)
                                         .show();
                                 mPlateText.setText(plate);
+                                mDurationText.setText(
+                                        String.format(Locale.getDefault(), "%d h", duration));
                             }
 
                             @Override
@@ -213,12 +230,11 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                                                 ((HttpException) e).response()
                                                         .errorBody()
                                                         .string());
-                                        switch (jObjError.getString("message")) {
-                                            case Constants.BOOKING_RESULT_EXIST:
-                                                Toast.makeText(PendingActivity.this,
-                                                        R.string.message_plate_already_exist,
-                                                        Toast.LENGTH_SHORT).show();
-                                                break;
+                                        if (Constants.BOOKING_RESULT_EXIST.equals(
+                                                jObjError.getString("message"))) {
+                                            Toast.makeText(PendingActivity.this,
+                                                    R.string.message_plate_already_exist,
+                                                    Toast.LENGTH_SHORT).show();
                                         }
                                     } catch (Exception ex) {
                                         Toast.makeText(PendingActivity.this, ex.getMessage(),
@@ -239,13 +255,11 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private void showCancelDialog() {
@@ -277,5 +291,27 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 });
         mCompositeDisposable.add(disposable);
+    }
+
+    private String[] getTimeArray() {
+        String[] timeSplit = mParkingLot.getCloseTime().split(":");
+        DateTime dateTime = new DateTime();
+        int hour = dateTime.getHourOfDay();
+        int minute = dateTime.getMinuteOfHour();
+        int period = Integer.parseInt(timeSplit[0]) * 60 + Integer.parseInt(timeSplit[1])
+                - hour * 60
+                - minute;
+        if (period < 70) {
+            return new String[0];
+        } else {
+            List<String> optionList = new ArrayList<>();
+            int timeOptions = period / 60 > 5 ? 5 : period / 60;
+            int i;
+            for (i = 1; i <= timeOptions; i++) {
+                optionList.add(
+                        i + "h\t:\t" + NumberUtils.getIncomeNumber(i * mParkingLot.getPrice()));
+            }
+            return optionList.toArray(new String[0]);
+        }
     }
 }

@@ -87,9 +87,9 @@
     <string name="alert_withdraw">Are you sure to withdraw %1$s?</string>
     <string name="message_booking_success">Book success</string>
     <string name="message_booking_change">Change success</string>
-    <string name="label_create">Create:</string>
-    <string name="label_end">End:</string>
-    <string name="label_status">Status:</string>
+    <string name="title_create">Create:</string>
+    <string name="title_end">End:</string>
+    <string name="title_status">Status:</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -116,4 +116,22 @@
     <string name="prompt_all_review">All reviews</string>
     <string name="prompt_all_car">All car</string>
     <string name="prompt_no_car">Parking lot empty</string>
+    <string name="hint_price">Price</string>
+    <string name="title_price">Price</string>
+    <string name="title_income">Income:</string>
+    <string name="error_no_map_application">Your device have no Google map application, please download before using navigate</string>
+    <string name="title_time_duration">Time duration</string>
+    <string name="message_close">Parking lot is going to close</string>
+    <string name="title_duration">Duration</string>
+    <string name="prompt_chose_location">Chose your destination</string>
+    <string name="prompt_prefer_value">Chose your prefered value</string>
+    <string name="title_budget">Budget (đ/h)</string>
+    <string name="title_max_distance">Max distance (km)</string>
+    <string name="title_time_remain">Time remain (h)</string>
+    <string name="prompt_favor">Which one do you favor</string>
+    <string name="action_search">Search</string>
+    <string name="message_select_destination">You have to select your destination to continue</string>
+    <string name="message_no_fit">No parking lot fit your search</string>
+    <string name="action_nearest">To nearest parking lot</string>
+    <string name="message_no_parking_lot">System have no parking lot</string>
 </resources>

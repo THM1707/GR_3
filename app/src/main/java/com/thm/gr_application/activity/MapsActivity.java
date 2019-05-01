@@ -1,5 +1,6 @@
 package com.thm.gr_application.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -21,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -43,9 +45,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -68,8 +69,9 @@ import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingData;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.ImageUtils;
+import com.thm.gr_application.utils.NumberUtils;
 import io.reactivex.disposables.CompositeDisposable;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,8 +85,8 @@ public class MapsActivity extends AppCompatActivity
     private static final String TAG = "MapsActivity";
     private static final float DEFAULT_ZOOM = 15.0f;
     private static final LatLng mDefaultLatLng = new LatLng(21.0307162, 105.7756564);
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
     private static final int REQUEST_GPS_CODE = 101;
+    private static final int SEARCH_ACTIVITY_CODE = 102;
     private boolean isLocationPermissionGranted;
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -97,13 +99,14 @@ public class MapsActivity extends AppCompatActivity
     private SupportMapFragment mMapFragment;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private Location mCurrentLocation;
+    private Map<Integer, Long> mSearchResultMap = new HashMap<>();
+    AutocompleteSupportFragment mAutocompleteFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setupDefaultLocation();
-        setupFirebaseDatabase();
         initViews();
         initGoogleServices();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -172,11 +175,34 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void initViews() {
-        FloatingActionButton floatingActionButton = findViewById(R.id.fab_my_location);
-        floatingActionButton.setOnClickListener(this);
-        floatingActionButton.setColorFilter(Color.WHITE);
+        mAutocompleteFragment =
+                (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(
+                        R.id.fragment_autocomplete);
+        List<Place.Field> placeField =
+                Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+        mAutocompleteFragment.setPlaceFields(placeField);
+        mAutocompleteFragment.setCountry("VN");
+        mAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+                Toast.makeText(MapsActivity.this, status.getStatusMessage(), Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+        FloatingActionButton searchFab = findViewById(R.id.fab_search);
+        FloatingActionButton locationFab = findViewById(R.id.fab_my_location);
+        locationFab.setOnClickListener(this);
+        locationFab.setColorFilter(Color.WHITE);
+        searchFab.setOnClickListener(this);
+        searchFab.setColorFilter(Color.WHITE);
+        findViewById(R.id.bt_nearest).setOnClickListener(this);
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
-        findViewById(R.id.tv_place_search).setOnClickListener(this);
         setupNavigationDrawer();
     }
 
@@ -248,8 +274,7 @@ public class MapsActivity extends AppCompatActivity
         }
 
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(),
-                    getResources().getString(R.string.google_maps_key));
+            Places.initialize(this, getString(R.string.google_maps_key));
         }
     }
 
@@ -272,6 +297,7 @@ public class MapsActivity extends AppCompatActivity
         };
         settingMap();
         checkLocationPermission();
+        setupFirebaseDatabase();
     }
 
     private void initLocationRequest() {
@@ -349,14 +375,6 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.tv_place_search:
-                // Set the fields to specify which types of place data to return.
-                List<Place.Field> fields = Collections.singletonList(Place.Field.LAT_LNG);
-                // Start the autocomplete intent.
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN,
-                        fields).setCountry("VN").build(this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-                break;
             case R.id.bt_navigation_drawer:
                 if (!mDrawer.isDrawerOpen()) {
                     mDrawer.openDrawer();
@@ -370,13 +388,60 @@ public class MapsActivity extends AppCompatActivity
                         requestLocationPermission();
                     }
                 }
+                break;
+            case R.id.fab_search:
+                if (!mSearchResultMap.isEmpty()) {
+                    int size = mSearchResultMap.size();
+                    for (int i = 1; i <= size; i++) {
+                        Marker marker = mMarkerIdMap.inverse().get(mSearchResultMap.get(i));
+                        if (marker != null) {
+                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(
+                                    ImageUtils.getParkingBitmapFromVectorDrawable(MapsActivity.this,
+                                            R.drawable.ic_marker_2)));
+                        }
+                    }
+                    mSearchResultMap.clear();
+                }
+                startActivityForResult(new Intent(MapsActivity.this, SearchActivity.class),
+                        SEARCH_ACTIVITY_CODE);
+                break;
+            case R.id.bt_nearest:
+                if (mIdParkingMap.isEmpty()) {
+                    Toast.makeText(this, R.string.message_no_parking_lot, Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    String nearestId = "";
+                    float nearestDistance = Float.MAX_VALUE;
+                    Location nearestLocation = new Location("");
+                    for (Map.Entry<String, ParkingData> data : mIdParkingMap.entrySet()) {
+                        Location markerLocation = new Location("");
+                        markerLocation.setLatitude(data.getValue().getLatitude());
+                        markerLocation.setLongitude(data.getValue().getLongitude());
+                        float distance = mCurrentLocation.distanceTo(markerLocation);
+                        if (distance < nearestDistance) {
+                            nearestId = data.getKey();
+                            nearestDistance = distance;
+                            nearestLocation = markerLocation;
+                        }
+                    }
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(
+                            new LatLng(nearestLocation.getLatitude(),
+                                    nearestLocation.getLongitude())));
+                    Marker marker = mMarkerIdMap.inverse().get(Long.valueOf(nearestId));
+                    if (marker != null) {
+                        marker.showInfoWindow();
+                    }
+                }
+                break;
             default:
                 break;
         }
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_GPS_CODE:
                 switch (resultCode) {
@@ -390,15 +455,34 @@ public class MapsActivity extends AppCompatActivity
                         break;
                 }
                 break;
-            case AUTOCOMPLETE_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    Place place = Autocomplete.getPlaceFromIntent(data);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-                } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                    Toast.makeText(this, R.string.error_place_api, Toast.LENGTH_SHORT).show();
-                } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
-                    mMap.animateCamera(
-                            CameraUpdateFactory.newLatLng(new LatLng(20.9984926, 105.7943954)));
+            case SEARCH_ACTIVITY_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    mSearchResultMap = (Map<Integer, Long>) data.getSerializableExtra(
+                            Constants.EXTRA_SEARCH_RESULT);
+                    double lat = data.getDoubleExtra(Constants.EXTRA_LATITUDE, 0);
+                    double lng = data.getDoubleExtra(Constants.EXTRA_LONGITUDE, 0);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
+                    int size = mSearchResultMap.size();
+                    for (int i = 1; i <= size; i++) {
+                        Marker marker = mMarkerIdMap.inverse().get(mSearchResultMap.get(i));
+                        if (marker != null) {
+                            int imageSource = -1;
+                            switch (i) {
+                                case 1:
+                                    imageSource = R.drawable.ic_number_1;
+                                    break;
+                                case 2:
+                                    imageSource = R.drawable.ic_number_2;
+                                    break;
+                                case 3:
+                                    imageSource = R.drawable.ic_number_3;
+                                    break;
+                            }
+                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(
+                                    ImageUtils.getParkingBitmapFromVectorDrawable(MapsActivity.this,
+                                            imageSource)));
+                        }
+                    }
                 }
                 break;
         }
@@ -418,24 +502,22 @@ public class MapsActivity extends AppCompatActivity
         markerLocation.setLongitude(marker.getPosition().longitude);
         float distance = mCurrentLocation.distanceTo(markerLocation);
         Long id = mMarkerIdMap.get(marker);
-        Intent intent = new Intent(this, ParkingLotDetailsActivity.class);
+        Intent intent = new Intent(this, ParkingInfoActivity.class);
         intent.putExtra(Constants.EXTRA_PARKING_LOT, id);
         intent.putExtra(Constants.EXTRA_DISTANCE, distance);
         startActivity(intent);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                isLocationPermissionGranted = grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                if (isLocationPermissionGranted) {
-                    checkGps();
-                } else {
-                    showDefaultLocation();
-                }
+        if (requestCode == Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+            isLocationPermissionGranted =
+                    grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (isLocationPermissionGranted) {
+                checkGps();
+            } else {
+                showDefaultLocation();
             }
         }
     }
@@ -453,6 +535,7 @@ public class MapsActivity extends AppCompatActivity
         if (mDrawer.isDrawerOpen()) {
             mDrawer.closeDrawer();
         } else {
+            finish();
             super.onBackPressed();
         }
     }
@@ -546,6 +629,7 @@ public class MapsActivity extends AppCompatActivity
 
         private View mWindow;
 
+        @SuppressLint("InflateParams")
         DetailsInfoAdapter() {
             mWindow = getLayoutInflater().inflate(R.layout.info_window, null);
         }
@@ -560,6 +644,7 @@ public class MapsActivity extends AppCompatActivity
             TextView addressText = mWindow.findViewById(R.id.tv_address);
             TextView availableText = mWindow.findViewById(R.id.tv_available);
             TextView reviewText = mWindow.findViewById(R.id.tv_review);
+            TextView priceText = mWindow.findViewById(R.id.tv_price);
             Long id = mMarkerIdMap.get(marker);
             ParkingData parkingData = mIdParkingMap.get(String.valueOf(id));
             if (parkingData != null) {
@@ -569,6 +654,8 @@ public class MapsActivity extends AppCompatActivity
                 reviewText.setText(parkingData.getStar() == 0f ? "NA"
                         : String.format(Locale.getDefault(), "Review: %.1f",
                                 parkingData.getStar()));
+                String priceString = "Price: " + NumberUtils.getPriceNumber(parkingData.getPrice());
+                priceText.setText(priceString);
             }
             return mWindow;
         }

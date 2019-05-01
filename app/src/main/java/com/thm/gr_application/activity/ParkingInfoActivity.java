@@ -26,6 +26,7 @@ import com.thm.gr_application.payload.InvoiceResponse;
 import com.thm.gr_application.payload.ParkingLotResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.thm.gr_application.utils.NumberUtils;
 import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -36,10 +37,11 @@ import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import retrofit2.HttpException;
 
-public class ParkingLotDetailsActivity extends AppCompatActivity implements View.OnClickListener {
+public class ParkingInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
     private boolean isFavorite;
     private ImageButton mImageButton;
@@ -84,7 +86,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
                     @Override
                     public void onError(Throwable e) {
-                        Toast.makeText(ParkingLotDetailsActivity.this, R.string.error_server,
+                        Toast.makeText(ParkingInfoActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -105,8 +107,8 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
                     @Override
                     public void onError(Throwable e) {
-                        Toast.makeText(ParkingLotDetailsActivity.this, e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ParkingInfoActivity.this, e.getMessage(), Toast.LENGTH_SHORT)
+                                .show();
                     }
                 });
         mCompositeDisposable.add(disposable);
@@ -127,6 +129,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
         TextView textAddress = findViewById(R.id.tv_address);
         TextView textActiveTime = findViewById(R.id.tv_active_time);
         TextView textDistance = findViewById(R.id.tv_distance);
+        TextView textPrice = findViewById(R.id.tv_price);
         TextView textAvailable = findViewById(R.id.tv_available);
         ImageView imageView = findViewById(R.id.iv_detail);
         Toolbar toolbar = findViewById(R.id.toolbar_details);
@@ -150,6 +153,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
         textAddress.setText(mParkingLot.getAddress());
         textActiveTime.setText(getActiveTimeText());
         textDistance.setText(getDistanceText());
+        textPrice.setText(NumberUtils.getPriceNumber(mParkingLot.getPrice()));
         if (mParkingLot.getImage() != null) {
             Glide.with(this)
                     .load(Constants.END_POINT_URL + "/api/image/" + mParkingLot.getImage().getId())
@@ -174,8 +178,8 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
                             @Override
                             public void onError(Throwable e) {
-                                Toast.makeText(ParkingLotDetailsActivity.this,
-                                        R.string.error_server, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ParkingInfoActivity.this, R.string.error_server,
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
                 mCompositeDisposable.add(disposable);
@@ -192,8 +196,8 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
                             @Override
                             public void onError(Throwable e) {
-                                Toast.makeText(ParkingLotDetailsActivity.this,
-                                        R.string.error_server, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ParkingInfoActivity.this, R.string.error_server,
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
                 mCompositeDisposable.add(disposable);
@@ -214,10 +218,9 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -237,7 +240,7 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
         if (mapIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(mapIntent);
         } else {
-            Toast.makeText(this, "Lame", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_no_map_application, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -247,12 +250,11 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
             // Show dialog to go to Car Activity to add car
             builder.setMessage(R.string.message_no_car)
                     .setPositiveButton(R.string.action_ok,
-                            (dialog, which) -> ParkingLotDetailsActivity.this.startActivity(
-                                    new Intent(ParkingLotDetailsActivity.this, CarActivity.class)))
+                            (dialog, which) -> ParkingInfoActivity.this.startActivity(
+                                    new Intent(ParkingInfoActivity.this, CarActivity.class)))
                     .create()
                     .show();
         } else {
-            // Make a new request
             List<String> plateList = new ArrayList<>();
             for (Car c : mCarList) {
                 plateList.add(c.getLicensePlate());
@@ -260,24 +262,33 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
             String[] plateArray = plateList.toArray(new String[0]);
             View layout = getLayoutInflater().inflate(R.layout.dialog_booking, null);
             Spinner carSpinner = layout.findViewById(R.id.spinner_plate);
-            ArrayAdapter<String> adapter =
+            Spinner timeSpinner = layout.findViewById(R.id.spinner_time);
+            String[] timeArray = getTimeArray();
+            if (timeArray.length == 0) {
+                Toast.makeText(this, R.string.message_close, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            carSpinner.setAdapter(
                     new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
-                            plateArray);
-            carSpinner.setAdapter(adapter);
+                            plateArray));
+            timeSpinner.setAdapter(
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                            timeArray));
             builder.setView(layout);
             AlertDialog dialog = builder.create();
             layout.findViewById(R.id.bt_booking).setOnClickListener(v -> {
                 mProgressView.show();
                 Disposable disposable = AppServiceClient.getMyApiInstance(this)
                         .requestBooking(mToken, mParkingLot.getId(),
-                                carSpinner.getSelectedItem().toString())
+                                carSpinner.getSelectedItem().toString(),
+                                timeSpinner.getSelectedItemPosition() + 1)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                             @Override
                             public void onSuccess(InvoiceResponse invoiceResponse) {
                                 mProgressView.hide();
-                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                Toast.makeText(ParkingInfoActivity.this,
                                         R.string.message_booking_success, Toast.LENGTH_SHORT)
                                         .show();
                             }
@@ -293,28 +304,28 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
                                                         .string());
                                         switch (jObjError.getString("message")) {
                                             case Constants.BOOKING_RESULT_PENDING:
-                                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                                Toast.makeText(ParkingInfoActivity.this,
                                                         R.string.message_already_booking,
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
                                             case Constants.BOOKING_RESULT_EXIST:
-                                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                                Toast.makeText(ParkingInfoActivity.this,
                                                         R.string.message_plate_already_exist,
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
                                             case Constants.BOOKING_RESULT_FULL:
-                                                Toast.makeText(ParkingLotDetailsActivity.this,
+                                                Toast.makeText(ParkingInfoActivity.this,
                                                         R.string.message_full_slot,
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
                                         }
                                     } catch (Exception ex) {
-                                        Toast.makeText(ParkingLotDetailsActivity.this,
-                                                ex.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ParkingInfoActivity.this, ex.getMessage(),
+                                                Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
-                                    Toast.makeText(ParkingLotDetailsActivity.this,
-                                            R.string.error_server, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ParkingInfoActivity.this, R.string.error_server,
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -322,6 +333,28 @@ public class ParkingLotDetailsActivity extends AppCompatActivity implements View
                 dialog.dismiss();
             });
             dialog.show();
+        }
+    }
+
+    private String[] getTimeArray() {
+        String[] timeSplit = mParkingLot.getCloseTime().split(":");
+        DateTime dateTime = new DateTime();
+        int hour = dateTime.getHourOfDay();
+        int minute = dateTime.getMinuteOfHour();
+        int period = Integer.parseInt(timeSplit[0]) * 60 + Integer.parseInt(timeSplit[1])
+                - hour * 60
+                - minute;
+        if (period < 70) {
+            return new String[0];
+        } else {
+            List<String> optionList = new ArrayList<>();
+            int timeOptions = period / 60 > 5 ? 5 : period / 60;
+            int i;
+            for (i = 1; i <= timeOptions; i++) {
+                optionList.add(
+                        i + "h\t:\t" + NumberUtils.getIncomeNumber(i * mParkingLot.getPrice()));
+            }
+            return optionList.toArray(new String[0]);
         }
     }
 

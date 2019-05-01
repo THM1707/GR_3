@@ -31,6 +31,14 @@ public class Invoice implements Serializable {
     @SerializedName("booked")
     private boolean isBooked;
 
+    @Expose
+    @SerializedName("income")
+    private int mIncome;
+
+    @Expose
+    @SerializedName("duration")
+    private int mDuration;
+
     public Long getId() {
         return mId;
     }
@@ -79,17 +87,33 @@ public class Invoice implements Serializable {
         isBooked = booked;
     }
 
+    public int getIncome() {
+        return mIncome;
+    }
+
+    public void setIncome(int income) {
+        mIncome = income;
+    }
+
+    public int getDuration() {
+        return mDuration;
+    }
+
+    public void setDuration(int duration) {
+        mDuration = duration;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Invoice invoice = (Invoice) o;
-        return isBooked == invoice.isBooked &&
-                Objects.equals(mId, invoice.mId) &&
-                Objects.equals(mCreatedDate, invoice.mCreatedDate) &&
-                Objects.equals(mEndDate, invoice.mEndDate) &&
-                Objects.equals(mPlate, invoice.mPlate) &&
-                Objects.equals(mStatus, invoice.mStatus);
+        return isBooked == invoice.isBooked
+                && Objects.equals(mId, invoice.mId)
+                && Objects.equals(mCreatedDate, invoice.mCreatedDate)
+                && Objects.equals(mEndDate, invoice.mEndDate)
+                && Objects.equals(mPlate, invoice.mPlate)
+                && Objects.equals(mStatus, invoice.mStatus);
     }
 
     @Override

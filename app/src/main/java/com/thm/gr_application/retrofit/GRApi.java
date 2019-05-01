@@ -1,7 +1,6 @@
 package com.thm.gr_application.retrofit;
 
 import com.thm.gr_application.payload.CredentialResponse;
-import com.thm.gr_application.payload.InvoiceIndexResponse;
 import com.thm.gr_application.payload.InvoiceResponse;
 import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.payload.MessageResponse;
@@ -12,14 +11,12 @@ import com.thm.gr_application.payload.ProfileResponse;
 import com.thm.gr_application.payload.ReviewRequest;
 import com.thm.gr_application.payload.ReviewResposne;
 import com.thm.gr_application.payload.ReviewsResponse;
+import com.thm.gr_application.payload.SearchRequest;
+import com.thm.gr_application.payload.SearchResponse;
 import com.thm.gr_application.payload.SignUpRequest;
 import com.thm.gr_application.payload.SignUpResponse;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import org.androidannotations.annotations.rest.Head;
-import org.androidannotations.annotations.rest.Post;
-import org.androidannotations.annotations.rest.Put;
-import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -36,9 +33,6 @@ public interface GRApi {
 
     @POST("api/auth/signUp")
     Single<SignUpResponse> signUp(@Body SignUpRequest request);
-
-    @GET("api/parking_lot/all")
-    Single<ParkingLotsResponse> getParkingLots(@Header("Authorization") String authToken);
 
     @GET("api/parking_lot/{id}")
     Single<ParkingLotResponse> getParkingLotById(@Header("Authorization") String authToken,
@@ -62,14 +56,12 @@ public interface GRApi {
 
     @POST("api/invoice/change/{id}")
     Single<MessageResponse> changeReservePlate(@Header("Authorization") String authToken,
-            @Path("id") Long id, @Query("plate") String plate);
+            @Path("id") Long id, @Query("plate") String plate, @Query("duration") int duration);
 
     @POST("api/invoice/request")
     Single<InvoiceResponse> requestBooking(@Header("Authorization") String authToken,
-            @Query("parkingLotId") Long pId, @Query("plate") String plate);
-
-    @GET("api/invoice/manager/index")
-    Single<InvoiceIndexResponse> invoiceIndex(@Header("Authorization") String authToken);
+            @Query("parkingLotId") Long pId, @Query("plate") String plate,
+            @Query("duration") int duration);
 
     @POST("api/invoice/manager/create")
     Single<InvoiceResponse> createBooking(@Header("Authorization") String authToken,
@@ -99,8 +91,8 @@ public interface GRApi {
             @Body ReviewRequest request);
 
     @POST("api/user/review/{id}")
-    Single<ReviewResposne> editReview(@Header("Authorization") String authToken, @Path("id") Long id,
-            @Query("star") int star, @Query("comment") String comment);
+    Single<ReviewResposne> editReview(@Header("Authorization") String authToken,
+            @Path("id") Long id, @Query("star") int star, @Query("comment") String comment);
 
     @DELETE("api/user/review/{id}")
     Completable deleteReview(@Header("Authorization") String authToken, @Path("id") Long id);
@@ -110,4 +102,8 @@ public interface GRApi {
 
     @GET("api/invoice/manager/done")
     Single<InvoicesResponse> getDoneInvoices(@Header("Authorization") String authToken);
+
+    @POST("api/user/smartSearching")
+    Single<SearchResponse> getSearchResult(@Header("Authorization") String token,
+            @Body SearchRequest request);
 }

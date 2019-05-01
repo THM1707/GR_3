@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.thm.gr_application.R;
 import com.thm.gr_application.adapter.InvoiceAdapter;
+import com.thm.gr_application.adapter.listener.InvoiceAcceptListener;
 import com.thm.gr_application.model.Invoice;
 import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
@@ -25,7 +26,7 @@ import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InvoiceHistoryActivity extends AppCompatActivity {
+public class InvoiceHistoryActivity extends AppCompatActivity implements InvoiceAcceptListener {
 
     private InvoiceAdapter mAdapter;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -114,5 +115,10 @@ public class InvoiceHistoryActivity extends AppCompatActivity {
 
     private void refresh() {
         getData();
+    }
+
+    @Override
+    public void onInvoiceAccepted() {
+
     }
 }

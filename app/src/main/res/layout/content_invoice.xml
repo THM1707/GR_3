@@ -17,9 +17,9 @@
         android:text="P"
         android:textColor="@color/white"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView2"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="@+id/textView2" />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title_status"
+        app:layout_constraintStart_toEndOf="@+id/tv_title_status"
+        app:layout_constraintTop_toTopOf="@+id/tv_title_status" />
 
     <ImageButton
         android:id="@+id/iv_action"
@@ -53,12 +53,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_label"
+        android:id="@+id/tv_title_create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/label_create"
+        android:text="@string/title_create"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_plate" />
 
@@ -66,36 +66,54 @@
         android:id="@+id/tv_create_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:text="17-3-2019"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tv_label"
-        app:layout_constraintStart_toEndOf="@+id/tv_label" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_create"
+        app:layout_constraintStart_toEndOf="@+id/tv_title_create" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/tv_title_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/label_end"
-        app:layout_constraintStart_toStartOf="@+id/tv_label"
-        app:layout_constraintTop_toBottomOf="@+id/tv_label" />
+        android:text="@string/title_end"
+        app:layout_constraintStart_toStartOf="@+id/tv_title_create"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_create" />
 
     <TextView
         android:id="@+id/tv_end_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="~"
-        app:layout_constraintBaseline_toBaselineOf="@+id/textView6"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_end"
         app:layout_constraintStart_toStartOf="@+id/tv_create_time" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/tv_title_income"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/label_status"
-        app:layout_constraintStart_toStartOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        android:text="@string/title_income"
+        app:layout_constraintStart_toStartOf="@+id/tv_title_create"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_end" />
+
+    <TextView
+        android:id="@+id/tv_income"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="~"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_income"
+        app:layout_constraintStart_toStartOf="@+id/tv_create_time" />
+
+    <TextView
+        android:id="@+id/tv_title_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/title_status"
+        app:layout_constraintStart_toStartOf="@+id/tv_title_create"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_income" />
 
     <ImageView
         android:id="@+id/iv_booked"
@@ -120,6 +138,6 @@
         android:id="@+id/group_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="textView6, tv_end_time"
+        app:constraint_referenced_ids="tv_title_end, tv_end_time, tv_title_income, tv_income"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

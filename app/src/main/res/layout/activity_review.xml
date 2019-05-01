@@ -143,6 +143,6 @@
         android:id="@+id/group_own_review"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="textView22,rating,tv_date,iv_edit,iv_delete,divider,tv_comment"
+        app:constraint_referenced_ids="textView22,rating,divider,tv_comment"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

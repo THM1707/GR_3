@@ -7,15 +7,17 @@ public class ParkingData {
     private float star;
     private double longitude;
     private double latitude;
+    private int price;
 
     public ParkingData(Long id, String name, int available, float star, double longitude,
-            double latitude) {
+            double latitude, int price) {
         this.id = id;
         this.name = name;
         this.available = available;
         this.star = star;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.price = price;
     }
 
     public ParkingData() {
@@ -67,5 +69,13 @@ public class ParkingData {
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

@@ -40,6 +40,28 @@
         android:spinnerMode="dropdown"
         tools:ignore="RtlSymmetry" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/rubik"
+        android:padding="8dp"
+        android:text="@string/title_time_duration"
+        android:textSize="20sp" />
+
+
+    <Spinner
+        android:background="@drawable/spinner_border"
+        android:id="@+id/spinner_time"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:spinnerMode="dropdown"
+        tools:ignore="RtlSymmetry" />
+
     <Button
         android:id="@+id/bt_booking"
         android:layout_width="wrap_content"

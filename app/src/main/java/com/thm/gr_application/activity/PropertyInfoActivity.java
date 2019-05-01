@@ -15,6 +15,7 @@ import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.ParkingLotResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.thm.gr_application.utils.NumberUtils;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -66,13 +67,16 @@ public class PropertyInfoActivity extends AppCompatActivity implements View.OnCl
             actionBar.setTitle("");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        TextView textAddress = findViewById(R.id.tv_address);
-        TextView textPosition = findViewById(R.id.tv_coordinates);
-        TextView textCapacity = findViewById(R.id.tv_capacity);
-        TextView textName = findViewById(R.id.tv_name);
-        TextView textActiveTime = findViewById(R.id.tv_active_time);
+        TextView addressText = findViewById(R.id.tv_address);
+        TextView positionText = findViewById(R.id.tv_coordinates);
+        TextView capacityText = findViewById(R.id.tv_capacity);
+        TextView nameText = findViewById(R.id.tv_name);
+        TextView activeTimeText = findViewById(R.id.tv_active_time);
         TextView starText = findViewById(R.id.tv_star);
-        starText.setText(String.format(Locale.getDefault(), "%.1f", mProperty.getStar()));
+        TextView priceText = findViewById(R.id.tv_price);
+        if (mProperty.getStar() != 0f) {
+            starText.setText(String.format(Locale.getDefault(), "%.1f", mProperty.getStar()));
+        }
         starText.setOnClickListener(this);
         ImageView imageView = findViewById(R.id.iv_detail);
         if (mProperty.getImage() != null) {
@@ -82,13 +86,14 @@ public class PropertyInfoActivity extends AppCompatActivity implements View.OnCl
         } else {
             imageView.setImageResource(R.drawable.parking_lot);
         }
-        textAddress.setText(mProperty.getAddress());
-        textCapacity.setText(String.valueOf(mProperty.getCapacity()));
+        addressText.setText(mProperty.getAddress());
+        capacityText.setText(String.valueOf(mProperty.getCapacity()));
         String activeTime = mProperty.getOpenTime() + " ~ " + mProperty.getCloseTime();
-        textActiveTime.setText(activeTime);
+        activeTimeText.setText(activeTime);
         String pos = mProperty.getLatitude() + ", " + mProperty.getLongitude();
-        textPosition.setText(pos);
-        textName.setText(mProperty.getName());
+        positionText.setText(pos);
+        nameText.setText(mProperty.getName());
+        priceText.setText(NumberUtils.getPriceNumber(mProperty.getPrice()));
     }
 
     @Override

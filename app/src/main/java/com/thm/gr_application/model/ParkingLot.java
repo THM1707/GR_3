@@ -55,6 +55,9 @@ public class ParkingLot implements Serializable {
     @Expose
     private int pending;
 
+    @Expose
+    private int price;
+
     public String getName() {
         return mName;
     }
@@ -157,6 +160,14 @@ public class ParkingLot implements Serializable {
 
     public void setPending(int pending) {
         this.pending = pending;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public class Image implements Serializable{

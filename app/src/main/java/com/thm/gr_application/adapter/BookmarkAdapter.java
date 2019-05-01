@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.thm.gr_application.R;
-import com.thm.gr_application.activity.ParkingLotDetailsActivity;
+import com.thm.gr_application.activity.ParkingInfoActivity;
 import com.thm.gr_application.adapter.listener.BookmarkClickListener;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.utils.Constants;
@@ -60,7 +60,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.Bookma
         float distance = mCurrentLocation.distanceTo(destination);
         Log.d("BookmarkAdapter", "onBindViewHolder: " + distance);
         bookmarkViewHolder.setListener((v, position) -> {
-            Intent intent = new Intent(mContext, ParkingLotDetailsActivity.class);
+            Intent intent = new Intent(mContext, ParkingInfoActivity.class);
             intent.putExtra(Constants.EXTRA_PARKING_LOT, p.getId());
             intent.putExtra(Constants.EXTRA_DISTANCE, distance);
             mContext.startActivity(intent);

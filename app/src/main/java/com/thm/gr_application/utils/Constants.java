@@ -17,6 +17,8 @@ public class Constants {
     public static final String EXTRA_LATITUDE = "extra_latitude";
     public static final String EXTRA_LONGITUDE = "extra_longitude";
     public static final String EXTRA_PARKING_LOT_NAME = "extra_parking_lot_name";
+    public static final String EXTRA_SEARCH_RESULT = "extra_search_result";
+
 
     /*
     Shared preferences related

@@ -16,9 +16,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
-        <activity android:name=".activity.FirebaseActivity">
-
-        </activity>
+        <activity android:name=".activity.SearchActivity"/>
+        <activity android:name=".activity.FirebaseActivity"/>
         <activity android:name=".activity.PropertyInfoActivity"/>
         <activity android:name=".activity.StatisticActivity"/>
         <activity android:name=".activity.InvoiceHistoryActivity"/>
@@ -39,7 +38,7 @@
         <activity
             android:name=".activity.BookmarkActivity"
             android:parentActivityName=".activity.MapsActivity"/>
-        <activity android:name=".activity.ParkingLotDetailsActivity"/>
+        <activity android:name=".activity.ParkingInfoActivity"/>
         <activity
             android:name=".activity.MapsActivity"
             android:label="@string/title_activity_maps"
@@ -53,6 +52,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
     </application>
 

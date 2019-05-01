@@ -23,6 +23,7 @@ import com.thm.gr_application.payload.InvoiceResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.DateUtils;
+import com.thm.gr_application.utils.NumberUtils;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -118,6 +119,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 break;
             case Constants.STATUS_DONE:
                 holder.mStatusText.setText("D");
+                holder.mIncomeText.setText(NumberUtils.getIncomeNumber(invoice.getIncome()));
                 holder.mStatusText.setBackgroundResource(R.drawable.rounded_done);
                 holder.mActionButton.setVisibility(View.INVISIBLE);
                 holder.mCreateTimeText.setText(createDateString);
@@ -139,6 +141,9 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                     @Override
                     public void onSuccess(InvoiceResponse invoiceResponse) {
+                        String fee = "Total fee: " + NumberUtils.getIncomeNumber(
+                                invoiceResponse.getInvoice().getIncome());
+                        showAlert(fee, null);
                         removeInvoice(pos);
                     }
 
@@ -223,6 +228,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         TextView mPlateText;
         TextView mCreateTimeText;
         TextView mEndTimeText;
+        TextView mIncomeText;
         ImageView mBookImage;
         ImageButton mActionButton;
         Group mEndGroup;
@@ -238,6 +244,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             mBookImage = view.findViewById(R.id.iv_booked);
             mActionButton = view.findViewById(R.id.iv_action);
             mEndGroup = view.findViewById(R.id.group_end);
+            mIncomeText = view.findViewById(R.id.tv_income);
             mActionButton.setOnClickListener(this);
         }
 
