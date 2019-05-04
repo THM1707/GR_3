@@ -19,7 +19,6 @@ public class Constants {
     public static final String EXTRA_PARKING_LOT_NAME = "extra_parking_lot_name";
     public static final String EXTRA_SEARCH_RESULT = "extra_search_result";
 
-
     /*
     Shared preferences related
      */
@@ -46,10 +45,12 @@ public class Constants {
     public static final long MAP_ITEM_HELP = 2;
     public static final long MAP_ITEM_MANAGER = 3;
     public static final long MAP_ITEM_PENDING = 4;
-    public static final long MANAGE_ITEM_HISTORY = 5;
-    public static final long MANAGE_ITEM_STATISTIC = 6;
-    public static final long MANAGE_ITEM_DETAILS = 7;
+    public static final long MAP_ITEM_RECHARGE = 5;
+    public static final long MAP_ITEM_HISTORY = 6;
 
+    public static final long MANAGE_ITEM_HISTORY = 0;
+    public static final long MANAGE_ITEM_STATISTIC = 1;
+    public static final long MANAGE_ITEM_DETAILS = 2;
 
     /*
     Invoice Status
@@ -71,7 +72,8 @@ public class Constants {
     /*
     Booking status
      */
-    public static final String BOOKING_RESULT_PENDING = "PENDING";
-    public static final String BOOKING_RESULT_EXIST = "EXIST";
-    public static final String BOOKING_RESULT_FULL = "FULL";
+    public static final String RESERVE_RESULT_PENDING = "PENDING";
+    public static final String RESERVE_RESULT_EXIST = "EXIST";
+    public static final String RESERVE_RESULT_FULL = "FULL";
+    public static final String RESERVE_RESULT_SHORT = "SHORT";
 }

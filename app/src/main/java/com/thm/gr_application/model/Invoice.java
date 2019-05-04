@@ -39,6 +39,10 @@ public class Invoice implements Serializable {
     @SerializedName("duration")
     private int mDuration;
 
+    @Expose
+    @SerializedName("late")
+    private int mLate;
+
     public Long getId() {
         return mId;
     }
@@ -101,6 +105,14 @@ public class Invoice implements Serializable {
 
     public void setDuration(int duration) {
         mDuration = duration;
+    }
+
+    public int getLate() {
+        return mLate;
+    }
+
+    public void setLate(int late) {
+        mLate = late;
     }
 
     @Override

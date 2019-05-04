@@ -303,19 +303,24 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
                                                         .errorBody()
                                                         .string());
                                         switch (jObjError.getString("message")) {
-                                            case Constants.BOOKING_RESULT_PENDING:
+                                            case Constants.RESERVE_RESULT_PENDING:
                                                 Toast.makeText(ParkingInfoActivity.this,
                                                         R.string.message_already_booking,
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
-                                            case Constants.BOOKING_RESULT_EXIST:
+                                            case Constants.RESERVE_RESULT_EXIST:
                                                 Toast.makeText(ParkingInfoActivity.this,
                                                         R.string.message_plate_already_exist,
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
-                                            case Constants.BOOKING_RESULT_FULL:
+                                            case Constants.RESERVE_RESULT_FULL:
                                                 Toast.makeText(ParkingInfoActivity.this,
                                                         R.string.message_full_slot,
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            case Constants.RESERVE_RESULT_SHORT:
+                                                Toast.makeText(ParkingInfoActivity.this,
+                                                        R.string.message_short_money,
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
                                         }
@@ -352,7 +357,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
             int i;
             for (i = 1; i <= timeOptions; i++) {
                 optionList.add(
-                        i + "h\t:\t" + NumberUtils.getIncomeNumber(i * mParkingLot.getPrice()));
+                        i + "h\t:\t" + NumberUtils.getAmountNumber(i * mParkingLot.getPrice()));
             }
             return optionList.toArray(new String[0]);
         }

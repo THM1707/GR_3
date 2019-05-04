@@ -31,6 +31,8 @@ import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import retrofit2.HttpException;
 
 public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHolder>
         implements Filterable {
@@ -76,6 +78,10 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Invoice invoice = mInvoiceListFiltered.get(position);
         holder.mPlateText.setText(invoice.getPlate());
+        if (invoice.getLate() != 0) {
+            holder.mLateGroup.setVisibility(View.VISIBLE);
+            holder.mLateText.setText(String.format(Locale.getDefault(), "%dh", invoice.getLate()));
+        }
         if (invoice.isBooked()) {
             holder.mBookImage.setVisibility(View.VISIBLE);
         } else {
@@ -93,7 +99,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 holder.mStatusText.setText("A");
                 holder.mStatusText.setBackgroundResource(R.drawable.rounded_active);
                 holder.mActionButton.setVisibility(View.VISIBLE);
-                holder.mActionButton.setImageResource(R.drawable.ic_error_24dp);
+                holder.mActionButton.setImageResource(R.drawable.ic_check_out);
                 holder.mCreateTimeText.setText(createDateString);
                 holder.setListener((v, pos) -> showAlert(
                         mContext.getString(R.string.alert_withdraw, invoice.getPlate()),
@@ -101,14 +107,14 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 break;
             case Constants.STATUS_PENDING:
                 holder.mEndGroup.setVisibility(View.GONE);
-                holder.mActionButton.setImageResource(R.drawable.ic_checked_24dp);
+                holder.mActionButton.setImageResource(R.drawable.ic_check_in);
                 holder.mActionButton.setVisibility(View.VISIBLE);
                 holder.mStatusText.setText("P");
                 holder.mStatusText.setBackgroundResource(R.drawable.rounded_pending);
                 holder.mCreateTimeText.setText(createDateString);
-                holder.setListener((v, position1) -> showAlert(
+                holder.setListener((v, pos) -> showAlert(
                         mContext.getString(R.string.alert_accept, invoice.getPlate()),
-                        (dialog, which) -> accept(invoice)));
+                        (dialog, which) -> accept(invoice, pos)));
                 break;
             case Constants.STATUS_CANCEL:
                 holder.mStatusText.setText("C");
@@ -119,7 +125,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 break;
             case Constants.STATUS_DONE:
                 holder.mStatusText.setText("D");
-                holder.mIncomeText.setText(NumberUtils.getIncomeNumber(invoice.getIncome()));
+                holder.mIncomeText.setText(NumberUtils.getAmountNumber(invoice.getIncome()));
                 holder.mStatusText.setBackgroundResource(R.drawable.rounded_done);
                 holder.mActionButton.setVisibility(View.INVISIBLE);
                 holder.mCreateTimeText.setText(createDateString);
@@ -135,15 +141,29 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 mContext.getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE)
                         .getString(Constants.SHARED_TOKEN, null);
         Disposable disposable = AppServiceClient.getMyApiInstance(mContext)
-                .withdraw(token, invoice.getId())
+                .checkout(token, invoice.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                     @Override
                     public void onSuccess(InvoiceResponse invoiceResponse) {
-                        String fee = "Total fee: " + NumberUtils.getIncomeNumber(
-                                invoiceResponse.getInvoice().getIncome());
-                        showAlert(fee, null);
+                        if (invoiceResponse.getInvoice().isBooked()) {
+                            int late = invoiceResponse.getInvoice().getLate();
+                            if (late == 0) {
+                                showAlert(mContext.getString(R.string.message_checkout_complete),
+                                        null);
+                            } else {
+                                String message = mContext.getString(R.string.title_checkout_late)
+                                        + late
+                                        + "h";
+                                showAlert(message, null);
+                            }
+                        } else {
+                            String fee = mContext.getString(R.string.title_total_fee)
+                                    + NumberUtils.getAmountNumber(
+                                    invoiceResponse.getInvoice().getIncome());
+                            showAlert(fee, null);
+                        }
                         removeInvoice(pos);
                     }
 
@@ -155,7 +175,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         mCompositeDisposable.add(disposable);
     }
 
-    private void accept(Invoice invoice) {
+    private void accept(Invoice invoice, int position) {
         String token =
                 mContext.getSharedPreferences(Constants.SHARED_PREF_USER, Context.MODE_PRIVATE)
                         .getString(Constants.SHARED_TOKEN, null);
@@ -174,7 +194,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
 
                     @Override
                     public void onError(Throwable e) {
-                        Toast.makeText(mContext, R.string.error_server, Toast.LENGTH_SHORT).show();
+                        if (e instanceof HttpException) {
+                            Toast.makeText(mContext, R.string.error_canceled, Toast.LENGTH_SHORT).show();
+                            removeInvoice(position);
+                        } else {
+                            Toast.makeText(mContext, R.string.error_server, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
         mCompositeDisposable.add(disposable);
@@ -229,14 +254,17 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         TextView mCreateTimeText;
         TextView mEndTimeText;
         TextView mIncomeText;
+        TextView mLateText;
         ImageView mBookImage;
         ImageButton mActionButton;
         Group mEndGroup;
+        Group mLateGroup;
         InvoiceClickListener mClickListener;
 
         ViewHolder(View view) {
             super(view);
             mView = view;
+            mLateText = view.findViewById(R.id.tv_late);
             mStatusText = view.findViewById(R.id.tv_status);
             mPlateText = view.findViewById(R.id.tv_plate);
             mCreateTimeText = view.findViewById(R.id.tv_create_time);
@@ -244,6 +272,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             mBookImage = view.findViewById(R.id.iv_booked);
             mActionButton = view.findViewById(R.id.iv_action);
             mEndGroup = view.findViewById(R.id.group_end);
+            mLateGroup = view.findViewById(R.id.group_late);
             mIncomeText = view.findViewById(R.id.tv_income);
             mActionButton.setOnClickListener(this);
         }

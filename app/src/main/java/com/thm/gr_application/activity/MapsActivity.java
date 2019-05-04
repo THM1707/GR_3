@@ -249,6 +249,14 @@ public class MapsActivity extends AppCompatActivity
                 new PrimaryDrawerItem().withIdentifier(Constants.MAP_ITEM_PENDING)
                         .withName("Pending Request")
                         .withIcon(R.drawable.ic_pending);
+        PrimaryDrawerItem rechargeItem =
+                new PrimaryDrawerItem().withIdentifier(Constants.MAP_ITEM_RECHARGE)
+                        .withName("Recharge")
+                        .withIcon(R.drawable.ic_wallet);
+        PrimaryDrawerItem historyItem =
+                new PrimaryDrawerItem().withIdentifier(Constants.MAP_ITEM_HISTORY)
+                        .withName("History")
+                        .withIcon(R.drawable.ic_history);
         SecondaryDrawerItem helpItem =
                 new SecondaryDrawerItem().withIdentifier(Constants.MAP_ITEM_HELP).withName("Help");
         SecondaryDrawerItem managerItem =
@@ -257,8 +265,8 @@ public class MapsActivity extends AppCompatActivity
         mDrawer = new DrawerBuilder().withAccountHeader(headerResult)
                 .withActivity(this)
                 .withSelectedItem(-1)
-                .addDrawerItems(bookmarkItem, carItem, pendingItem, new DividerDrawerItem(),
-                        helpItem)
+                .addDrawerItems(bookmarkItem, carItem, pendingItem, rechargeItem, historyItem,
+                        new DividerDrawerItem(), helpItem)
                 .withOnDrawerItemClickListener(this)
                 .build();
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
@@ -616,6 +624,10 @@ public class MapsActivity extends AppCompatActivity
             finish();
         } else if (id == Constants.MAP_ITEM_PENDING) {
             startActivity(new Intent(MapsActivity.this, PendingActivity.class));
+        } else if (id == Constants.MAP_ITEM_RECHARGE) {
+            startActivity(new Intent(MapsActivity.this, RechargeActivity.class));
+        } else if (id == Constants.MAP_ITEM_HISTORY) {
+            startActivity(new Intent(MapsActivity.this, HistoryActivity.class));
         }
 
         mDrawer.closeDrawer();

@@ -118,7 +118,7 @@
     <string name="prompt_no_car">Parking lot empty</string>
     <string name="hint_price">Price</string>
     <string name="title_price">Price</string>
-    <string name="title_income">Income:</string>
+    <string name="title_fee">Fee:</string>
     <string name="error_no_map_application">Your device have no Google map application, please download before using navigate</string>
     <string name="title_time_duration">Time duration</string>
     <string name="message_close">Parking lot is going to close</string>
@@ -134,4 +134,20 @@
     <string name="message_no_fit">No parking lot fit your search</string>
     <string name="action_nearest">To nearest parking lot</string>
     <string name="message_no_parking_lot">System have no parking lot</string>
+    <string name="hint_spent">Spent: 0đ</string>
+    <string name="message_short_money">Your budget is not enough</string>
+    <string name="title_total_fee">Total fee:</string>
+    <string name="message_checkout_complete">Checkout complete</string>
+    <string name="title_checkout_late">Checkout late:</string>
+    <string name="title_late">Late:</string>
+    <string name="error_canceled">User canceled the booking</string>
+    <string name="title_budget_amount">Budget</string>
+    <string name="title_recharge">Recharge</string>
+    <string name="val_50">50.000 đ</string>
+    <string name="val_100">100.000 đ</string>
+    <string name="val_200">200.000 đ</string>
+    <string name="val_500">500.000 đ</string>
+    <string name="val_0">0 đ</string>
+    <string name="message_recharge_success">Recharge success</string>
+    <string name="message_confirm_recharge">Are you sure to recharge ?</string>
 </resources>

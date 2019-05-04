@@ -208,7 +208,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                 String plate = carSpinner.getSelectedItem().toString();
                 int duration = timeSpinner.getSelectedItemPosition() + 1;
                 Disposable disposable = AppServiceClient.getMyApiInstance(this)
-                        .changeReservePlate(token, mInvoice.getId(), plate, duration)
+                        .changeReservation(token, mInvoice.getId(), plate, duration)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new DisposableSingleObserver<MessageResponse>() {
@@ -230,11 +230,17 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                                                 ((HttpException) e).response()
                                                         .errorBody()
                                                         .string());
-                                        if (Constants.BOOKING_RESULT_EXIST.equals(
-                                                jObjError.getString("message"))) {
-                                            Toast.makeText(PendingActivity.this,
-                                                    R.string.message_plate_already_exist,
-                                                    Toast.LENGTH_SHORT).show();
+                                        switch (jObjError.getString("message")) {
+                                            case Constants.RESERVE_RESULT_EXIST:
+                                                Toast.makeText(PendingActivity.this,
+                                                        R.string.message_plate_already_exist,
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            case Constants.RESERVE_RESULT_SHORT:
+                                                Toast.makeText(PendingActivity.this,
+                                                        R.string.message_short_money,
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
                                         }
                                     } catch (Exception ex) {
                                         Toast.makeText(PendingActivity.this, ex.getMessage(),
@@ -309,7 +315,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
             int i;
             for (i = 1; i <= timeOptions; i++) {
                 optionList.add(
-                        i + "h\t:\t" + NumberUtils.getIncomeNumber(i * mParkingLot.getPrice()));
+                        i + "h\t:\t" + NumberUtils.getAmountNumber(i * mParkingLot.getPrice()));
             }
             return optionList.toArray(new String[0]);
         }

@@ -5,10 +5,10 @@ import java.util.Locale;
 
 public class NumberUtils {
     public static String getPriceNumber(int price) {
-        return getIncomeNumber(price) + "/h";
+        return getAmountNumber(price) + "/h";
     }
 
-    public static String getIncomeNumber(int price) {
+    public static String getAmountNumber(int price) {
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         return numberFormat.format(price) + " đ";
     }

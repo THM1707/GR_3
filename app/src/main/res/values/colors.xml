@@ -3,7 +3,7 @@
     <color name="colorPrimary">#FFC107</color>
     <color name="colorPrimaryDark">#FFA000</color>
     <color name="colorPrimaryLight">#82f7ff</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#4DD0E1</color>
     <color name="black">#000000</color>
     <color name="blue">#0B1E8D</color>
     <color name="divider">#DDD6D6</color>
@@ -11,6 +11,7 @@
     <color name="white">#FFFFFF</color>
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">#fff</color>
     <color name="lightGray">#ededed</color>
+    <color name="background">#F1F1F1</color>
 
     <!-- Material DEFAULT colors -->
     <color name="material_drawer_primary">@color/colorPrimary</color>

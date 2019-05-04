@@ -93,7 +93,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/title_income"
+        android:text="@string/title_fee"
         app:layout_constraintStart_toStartOf="@+id/tv_title_create"
         app:layout_constraintTop_toBottomOf="@+id/tv_title_end" />
 
@@ -139,5 +139,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="tv_title_end, tv_end_time, tv_title_income, tv_income"
+        />
+
+    <androidx.constraintlayout.widget.Group
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/group_late"
+        app:constraint_referenced_ids="tv_late_title, tv_late"
+        />
+    <TextView
+        android:id="@+id/tv_late_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/title_late"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_status"
+        app:layout_constraintStart_toEndOf="@+id/iv_booked"
+        />
+    <TextView
+        android:id="@+id/tv_late"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="~"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_late_title"
+        app:layout_constraintStart_toEndOf="@+id/tv_late_title"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

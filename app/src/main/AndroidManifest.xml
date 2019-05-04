@@ -16,6 +16,10 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
+        <activity android:name=".activity.HistoryActivity">
+        </activity>
+        <activity android:name=".activity.RechargeActivity">
+        </activity>
         <activity android:name=".activity.SearchActivity"/>
         <activity android:name=".activity.FirebaseActivity"/>
         <activity android:name=".activity.PropertyInfoActivity"/>
@@ -52,7 +56,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
         </activity>
     </application>
 

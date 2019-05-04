@@ -55,7 +55,7 @@ public interface GRApi {
             @Path("id") Long id);
 
     @POST("api/invoice/change/{id}")
-    Single<MessageResponse> changeReservePlate(@Header("Authorization") String authToken,
+    Single<MessageResponse> changeReservation(@Header("Authorization") String authToken,
             @Path("id") Long id, @Query("plate") String plate, @Query("duration") int duration);
 
     @POST("api/invoice/request")
@@ -71,8 +71,8 @@ public interface GRApi {
     Single<InvoiceResponse> acceptBooking(@Header("Authorization") String authToken,
             @Path("id") Long id);
 
-    @POST("api/invoice/manager/withdraw/{id}")
-    Single<InvoiceResponse> withdraw(@Header("Authorization") String authToken,
+    @POST("api/invoice/manager/checkout/{id}")
+    Single<InvoiceResponse> checkout(@Header("Authorization") String authToken,
             @Path("id") Long id);
 
     @GET("api/user/profile")
@@ -106,4 +106,14 @@ public interface GRApi {
     @POST("api/user/smartSearching")
     Single<SearchResponse> getSearchResult(@Header("Authorization") String token,
             @Body SearchRequest request);
+
+    @POST("api/user/recharge")
+    Single<MessageResponse> recharge(@Header("Authorization") String token,
+            @Query("option") int option);
+
+    @GET("api/user/budget")
+    Single<MessageResponse> getBudget(@Header("Authorization") String token);
+
+    @GET("api/user/history")
+    Single<InvoicesResponse> getHistory(@Header("Authorization") String token);
 }
