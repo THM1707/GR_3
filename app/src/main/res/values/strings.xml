@@ -150,4 +150,5 @@
     <string name="val_0">0 đ</string>
     <string name="message_recharge_success">Recharge success</string>
     <string name="message_confirm_recharge">Are you sure to recharge ?</string>
+    <string name="error_unknow">Something happened</string>
 </resources>

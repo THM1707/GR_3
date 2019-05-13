@@ -116,4 +116,8 @@ public interface GRApi {
 
     @GET("api/user/history")
     Single<InvoicesResponse> getHistory(@Header("Authorization") String token);
+
+    @POST("api/user/notificationRegistration")
+    Completable notificationRegistration(@Header("Authorization") String authToken,
+            @Query("token") String token);
 }

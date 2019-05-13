@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+
 public class ParkingLot implements Serializable {
 
     @SerializedName("id")
@@ -57,6 +58,9 @@ public class ParkingLot implements Serializable {
 
     @Expose
     private int price;
+
+    @Expose
+    private int type;
 
     public String getName() {
         return mName;
@@ -170,7 +174,15 @@ public class ParkingLot implements Serializable {
         this.price = price;
     }
 
-    public class Image implements Serializable{
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public class Image implements Serializable {
         @Expose
         private Long id;
 

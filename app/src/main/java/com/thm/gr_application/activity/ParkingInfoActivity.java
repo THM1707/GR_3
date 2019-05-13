@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -52,6 +53,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
     private float mDistance;
     private Long mId;
     private AVLoadingIndicatorView mProgressView;
+    private Button mBookButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,12 +145,17 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
             actionBar.setTitle(mParkingLot.getName());
         }
         findViewById(R.id.bt_navigate).setOnClickListener(this);
-        findViewById(R.id.bt_booking).setOnClickListener(this);
+        mBookButton = findViewById(R.id.bt_booking);
+        mBookButton.setOnClickListener(this);
+        if (mParkingLot.getType() == 0) {
+            mBookButton.setEnabled(false);
+        }
         if (mParkingLot.getStar() != 0f) {
             textStar.setText(String.format(Locale.getDefault(), "%.1f", mParkingLot.getStar()));
         }
         textStar.setOnClickListener(this);
-        textAvailable.setText(mParkingLot.getCapacity() - mParkingLot.getCurrent() + " left");
+        textAvailable.setText(String.format(Locale.getDefault(), "%d left",
+                mParkingLot.getCapacity() - mParkingLot.getCurrent()));
         textCapacity.setText(String.valueOf(mParkingLot.getCapacity()));
         textAddress.setText(mParkingLot.getAddress());
         textActiveTime.setText(getActiveTimeText());

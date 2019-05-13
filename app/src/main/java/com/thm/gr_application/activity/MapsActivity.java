@@ -55,6 +55,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -67,10 +68,15 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingData;
+import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.ImageUtils;
 import com.thm.gr_application.utils.NumberUtils;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableCompletableObserver;
+import io.reactivex.schedulers.Schedulers;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -106,10 +112,42 @@ public class MapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        sendNotificationToken();
         setupDefaultLocation();
         initViews();
         initGoogleServices();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+    }
+
+    private void sendNotificationToken() {
+        String authToken = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
+                Constants.SHARED_TOKEN, null);
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.d(TAG, "onComplete: ", task.getException());
+            }
+            if (task.getResult() != null) {
+                String token = task.getResult().getToken();
+                Log.d(TAG, token);
+                Disposable disposable = AppServiceClient.getMyApiInstance(this)
+                        .notificationRegistration(authToken, token)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableCompletableObserver() {
+                            @Override
+                            public void onComplete() {
+                                Log.d(TAG, "onComplete: Completed");
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Toast.makeText(MapsActivity.this, R.string.error_server,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                mCompositeDisposable.add(disposable);
+            }
+        });
     }
 
     private void setupFirebaseDatabase() {
@@ -143,7 +181,15 @@ public class MapsActivity extends AppCompatActivity
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                String id = dataSnapshot.getKey();
+                ParkingData parkingData = dataSnapshot.getValue(ParkingData.class);
+                if (id != null && parkingData != null) {
+                    mIdParkingMap.remove(id);
+                    Marker marker = mMarkerIdMap.inverse().get(parkingData.getId());
+                    if (marker != null) {
+                        marker.remove();
+                    }
+                }
             }
 
             @Override
@@ -153,7 +199,7 @@ public class MapsActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Toast.makeText(MapsActivity.this, R.string.error_unknow, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -165,6 +211,10 @@ public class MapsActivity extends AppCompatActivity
                         ImageUtils.getParkingBitmapFromVectorDrawable(this,
                                 parkingData.getAvailable() == 0 ? R.drawable.ic_marker
                                         : R.drawable.ic_marker_2))));
+        if (parkingData.getType() == 0) {
+            m.setIcon(BitmapDescriptorFactory.fromBitmap(
+                    ImageUtils.getParkingBitmapFromVectorDrawable(this, R.drawable.ic_marker_3)));
+        }
         mMarkerIdMap.put(m, parkingData.getId());
     }
 

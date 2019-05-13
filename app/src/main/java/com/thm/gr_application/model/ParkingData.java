@@ -8,9 +8,10 @@ public class ParkingData {
     private double longitude;
     private double latitude;
     private int price;
+    private int type;
 
     public ParkingData(Long id, String name, int available, float star, double longitude,
-            double latitude, int price) {
+            double latitude, int price, int type) {
         this.id = id;
         this.name = name;
         this.available = available;
@@ -18,6 +19,7 @@ public class ParkingData {
         this.longitude = longitude;
         this.latitude = latitude;
         this.price = price;
+        this.type = type;
     }
 
     public ParkingData() {
@@ -77,5 +79,13 @@ public class ParkingData {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
