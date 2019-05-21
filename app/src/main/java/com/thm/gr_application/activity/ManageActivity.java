@@ -75,7 +75,7 @@ public class ManageActivity extends AppCompatActivity
         mParkingLot = (ParkingLot) getIntent().getSerializableExtra(Constants.EXTRA_PROPERTY);
         mPendingNumber = mParkingLot.getPending();
         DatabaseReference pendingRef =
-                FirebaseDatabase.getInstance().getReference("pending/" + mParkingLot.getId());
+                FirebaseDatabase.getInstance().getReference("p/pending/" + mParkingLot.getId());
         pendingRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -96,7 +96,7 @@ public class ManageActivity extends AppCompatActivity
         getData();
 
         DatabaseReference availableRef = FirebaseDatabase.getInstance()
-                .getReference("parking/" + mParkingLot.getId() + "/available");
+                .getReference("p/parking/" + mParkingLot.getId() + "/available");
         availableRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

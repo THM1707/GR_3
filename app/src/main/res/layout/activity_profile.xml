@@ -84,7 +84,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/tv_book_count"
+        app:layout_constraintTop_toBottomOf="@+id/iv_gender"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         >
 
@@ -249,33 +249,6 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:constraint_referenced_ids="ib_cancel,ib_done,textInputLayout4,til_new_password,rg_gender,textView29"
-        />
-    <TextView
-        android:textSize="16sp"
-        android:textColor="@color/colorAccent"
-        android:id="@+id/tv_book_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/rubik"
-        android:hint="@string/hint_book_count"
-        app:layout_constraintEnd_toStartOf="@+id/tv_cancel_count"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_gender"
-        />
-    <TextView
-        android:textSize="16sp"
-        android:textColor="@color/colorAccent"
-        android:id="@+id/tv_cancel_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/rubik"
-        android:hint="@string/hint_cancel_count"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tv_book_count"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/tv_book_count"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

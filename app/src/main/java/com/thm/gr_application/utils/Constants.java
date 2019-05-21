@@ -1,7 +1,7 @@
 package com.thm.gr_application.utils;
 
 public class Constants {
-    public static final String END_POINT_URL = "http://192.168.1.141:8080";
+    public static final String END_POINT_URL = "https://gr-project-1707.appspot.com";
 
     /*
     Permission

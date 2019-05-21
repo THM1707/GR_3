@@ -28,7 +28,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
-import java.util.Locale;
 import retrofit2.HttpException;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
@@ -46,8 +45,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private String mName;
     private String mPhone;
-    private TextView mBookCountText;
-    private TextView mCancelCountText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +70,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         mPhoneText.setText(profileResponse.getPhone());
                         mName = profileResponse.getName();
                         mPhone = profileResponse.getPhone();
-                        String bookCount = String.format(Locale.getDefault(), "Total reservation: %d", profileResponse.getBookCount());
-                        String cancelCount = String.format(Locale.getDefault(), "Cancel count: %d", profileResponse.getCancelCount());
-                        mBookCountText.setText(bookCount);
-                        mCancelCountText.setText(cancelCount);
                         if (profileResponse.getGender() == 0) {
                             mGenderImage.setImageResource(R.drawable.ic_male);
                             mMaleRadio.setChecked(true);
@@ -108,8 +101,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mOldPasswordText = findViewById(R.id.et_old_password);
         mNewPasswordText = findViewById(R.id.et_new_password);
         mEmailText = findViewById(R.id.tv_email);
-        mBookCountText = findViewById(R.id.tv_book_count);
-        mCancelCountText = findViewById(R.id.tv_cancel_count);
         mUsernameText = findViewById(R.id.tv_username);
         mNameText = findViewById(R.id.et_name);
         mNameText.setFocusable(false);
@@ -174,7 +165,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                                 : R.drawable.ic_female);
                         mName = request.getName();
                         mPhone = request.getPhone();
-                        SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).edit();
+                        SharedPreferences.Editor editor =
+                                getSharedPreferences(Constants.SHARED_PREF_USER,
+                                        MODE_PRIVATE).edit();
                         editor.putInt(Constants.SHARED_GENDER, request.getGender());
                         editor.putString(Constants.SHARED_NAME, mName);
                         editor.apply();

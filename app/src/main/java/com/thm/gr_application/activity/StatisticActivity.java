@@ -144,7 +144,8 @@ public class StatisticActivity extends AppCompatActivity {
         int[] order = { 5, 4, 3, 2, 1, 0 };
         mIncomeChart.setXAxis(false)
                 .setYAxis(false)
-                .setTooltips(mIncomeTip).show(new Animation().inSequence(.5f, order));
+                .setTooltips(mIncomeTip)
+                .show(new Animation().inSequence(.5f, order));
     }
 
     private void initTip() {
@@ -166,7 +167,7 @@ public class StatisticActivity extends AppCompatActivity {
         mBillTip.setPivotY(Tools.fromDpToPx(25));
 
         mIncomeTip.setVerticalAlignment(Tooltip.Alignment.BOTTOM_TOP);
-        mIncomeTip.setDimensions((int) Tools.fromDpToPx(58), (int) Tools.fromDpToPx(25));
+        mIncomeTip.setDimensions((int) Tools.fromDpToPx(106), (int) Tools.fromDpToPx(25));
 
         mIncomeTip.setEnterAnimation(PropertyValuesHolder.ofFloat(View.ALPHA, 1),
                 PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f),

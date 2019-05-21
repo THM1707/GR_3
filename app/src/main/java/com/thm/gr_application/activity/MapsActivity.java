@@ -151,7 +151,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void setupFirebaseDatabase() {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference("parking");
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("p/parking");
         database.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -455,10 +455,13 @@ public class MapsActivity extends AppCompatActivity
                     int size = mSearchResultMap.size();
                     for (int i = 1; i <= size; i++) {
                         Marker marker = mMarkerIdMap.inverse().get(mSearchResultMap.get(i));
-                        if (marker != null) {
+                        ParkingData parkingData =
+                                mIdParkingMap.get(String.valueOf(mSearchResultMap.get(i)));
+                        if (marker != null && parkingData != null) {
                             marker.setIcon(BitmapDescriptorFactory.fromBitmap(
                                     ImageUtils.getParkingBitmapFromVectorDrawable(MapsActivity.this,
-                                            R.drawable.ic_marker_2)));
+                                            parkingData.getType() == 0 ? R.drawable.ic_marker_3
+                                                    : R.drawable.ic_marker_2)));
                         }
                     }
                     mSearchResultMap.clear();
