@@ -309,6 +309,9 @@ public class MapsActivity extends AppCompatActivity
                         .withIcon(R.drawable.ic_history);
         SecondaryDrawerItem helpItem =
                 new SecondaryDrawerItem().withIdentifier(Constants.MAP_ITEM_HELP).withName("Help");
+        SecondaryDrawerItem settingItem =
+                new SecondaryDrawerItem().withIdentifier(Constants.MAP_ITEM_SETTING)
+                        .withName("Setting");
         SecondaryDrawerItem managerItem =
                 new SecondaryDrawerItem().withIdentifier(Constants.MAP_ITEM_MANAGER)
                         .withName("Manager");
@@ -316,7 +319,7 @@ public class MapsActivity extends AppCompatActivity
                 .withActivity(this)
                 .withSelectedItem(-1)
                 .addDrawerItems(bookmarkItem, carItem, pendingItem, rechargeItem, historyItem,
-                        new DividerDrawerItem(), helpItem)
+                        new DividerDrawerItem(), helpItem, settingItem)
                 .withOnDrawerItemClickListener(this)
                 .build();
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
@@ -678,6 +681,8 @@ public class MapsActivity extends AppCompatActivity
             startActivity(new Intent(MapsActivity.this, RechargeActivity.class));
         } else if (id == Constants.MAP_ITEM_HISTORY) {
             startActivity(new Intent(MapsActivity.this, HistoryActivity.class));
+        } else if (id == Constants.MAP_ITEM_SETTING) {
+            // TODO: 14/05/2019  
         }
 
         mDrawer.closeDrawer();
@@ -711,8 +716,13 @@ public class MapsActivity extends AppCompatActivity
             ParkingData parkingData = mIdParkingMap.get(String.valueOf(id));
             if (parkingData != null) {
                 addressText.setText(parkingData.getName());
-                availableText.setText(String.format(Locale.getDefault(), "Available: %d slots",
-                        parkingData.getAvailable()));
+                if (parkingData.getType() == 0) {
+                    availableText.setText(String.format(Locale.getDefault(), "Capacity: %d slots",
+                            parkingData.getAvailable()));
+                } else {
+                    availableText.setText(String.format(Locale.getDefault(), "Available: %d slots",
+                            parkingData.getAvailable()));
+                }
                 reviewText.setText(parkingData.getStar() == 0f ? "NA"
                         : String.format(Locale.getDefault(), "Review: %.1f",
                                 parkingData.getStar()));

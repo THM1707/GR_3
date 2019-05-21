@@ -169,8 +169,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void changePlate() {
-        androidx.appcompat.app.AlertDialog.Builder builder =
-                new androidx.appcompat.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (mCarList.isEmpty()) {
             // Show dialog to go to Car Activity to add car
             builder.setMessage(R.string.message_no_car)

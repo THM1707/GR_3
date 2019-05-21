@@ -10,12 +10,11 @@
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:background="@color/colorPrimary"
-        android:fontFamily="sans-serif"
+        android:fontFamily="@font/rubik"
         android:gravity="center"
         android:text="@string/prompt_booking"
-        android:textAllCaps="true"
         android:textColor="@color/white"
-        android:textSize="18sp" />
+        android:textSize="22sp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,7 +69,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="10dp"
         android:background="@color/colorPrimaryDark"
-        android:text="@string/action_booking"
+        android:text="@string/action_ok"
         android:textColor="@color/white"
         android:textSize="18sp" />
 </LinearLayout>

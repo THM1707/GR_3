@@ -47,6 +47,7 @@ public class Constants {
     public static final long MAP_ITEM_PENDING = 4;
     public static final long MAP_ITEM_RECHARGE = 5;
     public static final long MAP_ITEM_HISTORY = 6;
+    public static final long MAP_ITEM_SETTING = 7;
 
     public static final long MANAGE_ITEM_HISTORY = 0;
     public static final long MANAGE_ITEM_STATISTIC = 1;

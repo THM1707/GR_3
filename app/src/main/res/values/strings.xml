@@ -67,7 +67,7 @@
     <string name="title_date">Date</string>
     <string name="title_plate">Plate</string>
     <string name="action_cancel">Cancel</string>
-    <string name="prompt_booking">Book slot</string>
+    <string name="prompt_booking">Reservation info</string>
     <string name="action_booking">book</string>
     <string name="confirm_delete_car">Are you sure to delete ?</string>
     <string name="action_ok">OK</string>
