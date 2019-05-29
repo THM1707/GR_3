@@ -117,23 +117,23 @@
         app:layout_constraintVertical_bias="1.0"
         />
     <androidx.constraintlayout.widget.Group
-        android:visibility="gone"
         android:id="@+id/group_review"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:constraint_referenced_ids="iv_delete,iv_edit,tv_date"
         />
     <TextView
-        android:textColor="@color/colorAccent"
-        android:textSize="16sp"
-        android:fontFamily="@font/rubik"
         android:id="@+id/tv_review_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
+        android:fontFamily="@font/rubik"
         android:text="@string/prompt_all_review"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider"
@@ -144,5 +144,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="textView22,rating,divider,tv_comment"
+        />
+
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/progress_review"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/accent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/AVLoadingIndicatorView"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,6 +18,7 @@ import com.thm.gr_application.model.Invoice;
 import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -31,6 +32,7 @@ public class InvoiceHistoryActivity extends AppCompatActivity implements Invoice
     private InvoiceAdapter mAdapter;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private List<Invoice> mInvoiceList = new ArrayList<>();
+    private AVLoadingIndicatorView mHistoryProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +52,14 @@ public class InvoiceHistoryActivity extends AppCompatActivity implements Invoice
                 .subscribeWith(new DisposableSingleObserver<InvoicesResponse>() {
                     @Override
                     public void onSuccess(InvoicesResponse invoicesResponse) {
+                        mHistoryProgress.smoothToHide();
                         mInvoiceList = invoicesResponse.getData();
                         mAdapter.setInvoiceList(mInvoiceList);
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        mHistoryProgress.smoothToHide();
                         Toast.makeText(InvoiceHistoryActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -65,6 +69,7 @@ public class InvoiceHistoryActivity extends AppCompatActivity implements Invoice
     }
 
     private void initViews() {
+        mHistoryProgress = findViewById(R.id.progress_pending);
         Toolbar toolbar = findViewById(R.id.toolbar_invoice_history);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();

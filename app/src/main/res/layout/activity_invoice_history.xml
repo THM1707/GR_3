@@ -34,4 +34,16 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar_invoice_history"
         />
 
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/progress_pending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/accent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/AVLoadingIndicatorView"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

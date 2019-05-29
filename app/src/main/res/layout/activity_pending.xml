@@ -88,23 +88,22 @@
             />
     </LinearLayout>
 
-    <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/progress_history"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:indicatorName="PacmanIndicator"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_invoice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:constraint_referenced_ids="card_pending, bt_cancel, bt_change"
+        />
+
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/progress_pending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

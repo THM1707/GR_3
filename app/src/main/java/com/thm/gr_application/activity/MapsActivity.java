@@ -151,7 +151,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void setupFirebaseDatabase() {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference("p/parking");
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("parking");
         database.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {

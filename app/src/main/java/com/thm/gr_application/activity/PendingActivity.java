@@ -40,7 +40,7 @@ import retrofit2.HttpException;
 
 public class PendingActivity extends AppCompatActivity implements View.OnClickListener {
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private AVLoadingIndicatorView mHistoryProgress;
+    private AVLoadingIndicatorView mPendingProgress;
     private TextView mAddressText;
     private TextView mDateText;
     private TextView mPlateText;
@@ -86,7 +86,6 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
     private void getData() {
         String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
                 Constants.SHARED_TOKEN, null);
-        mHistoryProgress.show();
         Disposable disposable = AppServiceClient.getMyApiInstance(this)
                 .getUserPending(token)
                 .subscribeOn(Schedulers.io())
@@ -94,7 +93,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                 .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                     @Override
                     public void onSuccess(InvoiceResponse invoiceResponse) {
-                        mHistoryProgress.hide();
+                        mPendingProgress.smoothToHide();
                         if (invoiceResponse.getMessage().equals("OK")) {
                             mGroup.setVisibility(View.VISIBLE);
                             mEmptyLayout.setVisibility(View.GONE);
@@ -120,7 +119,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
 
                     @Override
                     public void onError(Throwable e) {
-                        mHistoryProgress.hide();
+                        mPendingProgress.smoothToHide();
                         mEmptyText.setText(R.string.error_server);
                         mEmptyImage.setImageResource(R.drawable.ic_disconnected);
                         Toast.makeText(PendingActivity.this,
@@ -140,7 +139,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
         }
         mGroup = findViewById(R.id.group_invoice);
         mEmptyText = findViewById(R.id.tv_empty);
-        mHistoryProgress = findViewById(R.id.progress_history);
+        mPendingProgress = findViewById(R.id.progress_pending);
         mAddressText = findViewById(R.id.tv_address);
         mDateText = findViewById(R.id.tv_date);
         mPlateText = findViewById(R.id.tv_plate);

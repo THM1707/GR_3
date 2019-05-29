@@ -34,7 +34,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private EditText mPasswordText;
     private EditText mPhoneText;
     private RadioButton mMaleRadio;
-    private RadioButton mFemaleRadio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         mPasswordText = findViewById(R.id.et_password);
         mPhoneText = findViewById(R.id.et_phone);
         mMaleRadio = findViewById(R.id.rb_male);
-        mFemaleRadio = findViewById(R.id.rb_female);
         findViewById(R.id.bt_sign_up).setOnClickListener(this);
         mProgressBar = findViewById(R.id.progress_sign_up);
     }

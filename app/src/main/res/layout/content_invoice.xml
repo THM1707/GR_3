@@ -5,16 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    tools:showIn="@layout/item_booking">
+    tools:showIn="@layout/item_invoice">
 
     <TextView
         android:id="@+id/tv_status"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="16dp"
-        android:background="@drawable/rounded_done"
         android:gravity="center"
-        android:text="P"
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title_status"
@@ -32,7 +30,7 @@
         android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_checked_24dp"
+        app:srcCompat="@drawable/ic_check_in"
         tools:ignore="ContentDescription" />
 
     <TextView
@@ -44,7 +42,7 @@
         android:layout_marginEnd="8dp"
         android:drawableStart="@drawable/ic_license_plate"
         android:gravity="center"
-        android:text="ASB"
+        android:hint="@string/hint_default_value"
         android:textColor="@color/accent"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -67,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="17-3-2019"
+        android:hint="@string/hint_default_value"
         app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_create"
         app:layout_constraintStart_toEndOf="@+id/tv_title_create" />
 
@@ -84,7 +82,7 @@
         android:id="@+id/tv_end_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="~"
+        android:hint="@string/hint_default_value"
         app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_end"
         app:layout_constraintStart_toStartOf="@+id/tv_create_time" />
 
@@ -101,7 +99,7 @@
         android:id="@+id/tv_income"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="~"
+        android:hint="@string/hint_default_value"
         app:layout_constraintBaseline_toBaselineOf="@+id/tv_title_income"
         app:layout_constraintStart_toStartOf="@+id/tv_create_time" />
 

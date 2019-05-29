@@ -6,8 +6,9 @@
     android:orientation="vertical">
 
     <TextView
+        android:padding="8dp"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         android:fontFamily="sans-serif"
         android:gravity="center"
@@ -17,11 +18,11 @@
         android:textSize="18sp" />
 
     <TextView
+        android:layout_marginTop="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:fontFamily="@font/rubik"
         android:padding="8dp"
         android:text="@string/title_license_plate"
@@ -29,13 +30,13 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="8dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_plate"
@@ -53,7 +54,6 @@
         android:layout_gravity="end"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="10dp"
-        android:background="@color/colorPrimaryDark"
         android:text="@string/action_add"
         android:textColor="@color/white"
         android:textSize="18sp" />

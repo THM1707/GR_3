@@ -120,7 +120,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:gravity="center"
-        android:hint="@string/hint_capacity"
+        android:hint="@string/hint_default_value"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/iv_detail"
@@ -134,7 +134,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:hint="@string/hint_address"
+        android:hint="@string/hint_default_value"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/tv_capacity"
@@ -148,39 +148,10 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:hint="@string/title_active_time"
+        android:hint="@string/hint_default_value"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/tv_address"
-        />
-
-
-    <Button
-        android:id="@+id/bt_navigate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:text="@string/action_navigate"
-        app:layout_constraintEnd_toStartOf="@+id/bt_booking"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_price"
-        />
-
-    <Button
-        android:id="@+id/bt_booking"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="8dp"
-        android:text="@string/action_booking"
-        app:layout_constraintBaseline_toBaselineOf="@+id/bt_navigate"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/bt_navigate"
         />
 
     <TextView
@@ -191,23 +162,10 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:hint="@string/title_distance"
+        android:hint="@string/hint_default_value"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/tv_active_time"
-        />
-
-    <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/progress_details"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:indicatorColor="@color/primary"
-        app:indicatorName="PacmanIndicator"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/iv_detail"
         />
 
     <TextView
@@ -250,7 +208,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:hint="@string/hint_price"
+        android:hint="@string/hint_default_value"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/tv_distance"
@@ -270,4 +228,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_price"
         />
+
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/progress_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/accent"
+        app:indicatorName="BallPulseIndicator"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv_detail"
+        style="@style/AVLoadingIndicatorView"
+        />
+
+    <Button
+        android:id="@+id/bt_navigate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/action_navigate"
+        app:layout_constraintEnd_toStartOf="@+id/bt_booking"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_price"
+        />
+
+    <Button
+        android:id="@+id/bt_booking"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/action_booking"
+        app:layout_constraintBaseline_toBaselineOf="@+id/bt_navigate"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/bt_navigate"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

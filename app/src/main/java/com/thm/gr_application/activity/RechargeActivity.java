@@ -14,6 +14,7 @@ import com.thm.gr_application.payload.MessageResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.NumberUtils;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -26,6 +27,7 @@ public class RechargeActivity extends AppCompatActivity implements View.OnClickL
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private String mToken = "";
     private TextView mBudgetText;
+    private AVLoadingIndicatorView mBudgetProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +47,14 @@ public class RechargeActivity extends AppCompatActivity implements View.OnClickL
                 .subscribeWith(new DisposableSingleObserver<MessageResponse>() {
                     @Override
                     public void onSuccess(MessageResponse messageResponse) {
+                        mBudgetProgress.smoothToHide();
                         mBudget = Integer.valueOf(messageResponse.getMessage());
                         mBudgetText.setText(NumberUtils.getAmountNumber(mBudget));
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        mBudgetProgress.smoothToHide();
                         Toast.makeText(RechargeActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -66,6 +70,7 @@ public class RechargeActivity extends AppCompatActivity implements View.OnClickL
             actionBar.setTitle("Recharge");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        mBudgetProgress = findViewById(R.id.progress_budget);
         mBudgetText = findViewById(R.id.tv_budget);
         findViewById(R.id.bt_recharge_5).setOnClickListener(this);
         findViewById(R.id.bt_recharge_10).setOnClickListener(this);

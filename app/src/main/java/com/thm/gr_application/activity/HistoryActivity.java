@@ -16,6 +16,7 @@ import com.thm.gr_application.model.Invoice;
 import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -31,6 +32,7 @@ public class HistoryActivity extends AppCompatActivity implements InvoiceAcceptL
     private TextView mCanceledText;
     private List<Invoice> mInvoiceList = new ArrayList<>();
     private InvoiceAdapter mAdapter;
+    private AVLoadingIndicatorView mHistoryProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class HistoryActivity extends AppCompatActivity implements InvoiceAcceptL
                 .subscribeWith(new DisposableSingleObserver<InvoicesResponse>() {
                     @Override
                     public void onSuccess(InvoicesResponse invoicesResponse) {
+                        mHistoryProgress.smoothToHide();
                         mInvoiceList = invoicesResponse.getData();
                         int canceledCount = 0;
                         for (Invoice invoice : mInvoiceList) {
@@ -64,6 +67,7 @@ public class HistoryActivity extends AppCompatActivity implements InvoiceAcceptL
 
                     @Override
                     public void onError(Throwable e) {
+                        mHistoryProgress.smoothToHide();
                         Toast.makeText(HistoryActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -79,6 +83,7 @@ public class HistoryActivity extends AppCompatActivity implements InvoiceAcceptL
             actionBar.setTitle("History");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        mHistoryProgress = findViewById(R.id.progress_pending);
         mTotalText = findViewById(R.id.tv_total);
         mCanceledText = findViewById(R.id.tv_canceled);
         RecyclerView historyRecycler = findViewById(R.id.rv_history);

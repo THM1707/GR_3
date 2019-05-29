@@ -45,6 +45,7 @@ import com.thm.gr_application.payload.InvoiceResponse;
 import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -67,6 +68,7 @@ public class ManageActivity extends AppCompatActivity
     private int mPendingNumber;
     private int mAvailable;
     private MenuItem mRefreshMenu;
+    private AVLoadingIndicatorView mManageProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class ManageActivity extends AppCompatActivity
         mParkingLot = (ParkingLot) getIntent().getSerializableExtra(Constants.EXTRA_PROPERTY);
         mPendingNumber = mParkingLot.getPending();
         DatabaseReference pendingRef =
-                FirebaseDatabase.getInstance().getReference("p/pending/" + mParkingLot.getId());
+                FirebaseDatabase.getInstance().getReference("pending/" + mParkingLot.getId());
         pendingRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -96,7 +98,7 @@ public class ManageActivity extends AppCompatActivity
         getData();
 
         DatabaseReference availableRef = FirebaseDatabase.getInstance()
-                .getReference("p/parking/" + mParkingLot.getId() + "/available");
+                .getReference("parking/" + mParkingLot.getId() + "/available");
         availableRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -124,6 +126,7 @@ public class ManageActivity extends AppCompatActivity
                 .subscribeWith(new DisposableSingleObserver<InvoicesResponse>() {
                     @Override
                     public void onSuccess(InvoicesResponse invoicesResponse) {
+                        mManageProgress.smoothToHide();
                         if (mRefreshMenu != null) {
                             mRefreshMenu.setIcon(R.drawable.ic_refresh_24dp);
                         }
@@ -133,6 +136,7 @@ public class ManageActivity extends AppCompatActivity
 
                     @Override
                     public void onError(Throwable e) {
+                        mManageProgress.smoothToHide();
                         Toast.makeText(ManageActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -151,6 +155,7 @@ public class ManageActivity extends AppCompatActivity
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
+        mManageProgress = findViewById(R.id.progress_manage);
         mPromptText = findViewById(R.id.tv_car_prompt);
         RecyclerView recyclerView = findViewById(R.id.rv_invoice);
         mAdapter = new InvoiceAdapter(this, mInvoiceList);

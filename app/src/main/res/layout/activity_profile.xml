@@ -251,4 +251,16 @@
         app:constraint_referenced_ids="ib_cancel,ib_done,textInputLayout4,til_new_password,rg_gender,textView29"
         />
 
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/progress_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/accent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/AVLoadingIndicatorView"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

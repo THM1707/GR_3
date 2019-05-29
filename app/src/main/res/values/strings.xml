@@ -36,7 +36,7 @@
     <string name="menu_help">Help</string>
     <string name="menu_manager">Manager</string>
     <string name="title_slot">Slots</string>
-    <string name="hint_address">Address here</string>
+    <string name="hint_address">Address</string>
     <string name="hint_capacity">70</string>
     <string name="prompt_register">Not an user? Register now</string>
     <string name="prompt_name">Name</string>
@@ -84,7 +84,7 @@
     <string name="message_no_car">You have no car yet, create one?</string>
     <string name="prompt_add_invoice">Add vehicle</string>
     <string name="alert_accept">Are your sure to accept %1$s?</string>
-    <string name="alert_withdraw">Are you sure to withdraw %1$s?</string>
+    <string name="alert_checkout">Are you sure to checkout %1$s?</string>
     <string name="message_booking_success">Book success</string>
     <string name="message_booking_change">Change success</string>
     <string name="title_create">Create:</string>
@@ -151,4 +151,6 @@
     <string name="message_recharge_success">Recharge success</string>
     <string name="message_confirm_recharge">Are you sure to recharge ?</string>
     <string name="error_unknow">Something happened</string>
+    <string name="hint_default_value">~</string>
+    <string name="action_edit">Edit</string>
 </resources>

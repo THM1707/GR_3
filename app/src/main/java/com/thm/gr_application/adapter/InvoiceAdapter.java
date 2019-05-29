@@ -70,7 +70,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_booking, parent, false);
+                .inflate(R.layout.item_invoice, parent, false);
         return new InvoiceAdapter.ViewHolder(view);
     }
 
@@ -102,7 +102,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                 holder.mActionButton.setImageResource(R.drawable.ic_check_out);
                 holder.mCreateTimeText.setText(createDateString);
                 holder.setListener((v, pos) -> showAlert(
-                        mContext.getString(R.string.alert_withdraw, invoice.getPlate()),
+                        mContext.getString(R.string.alert_checkout, invoice.getPlate()),
                         (dialog, which) -> checkout(invoice, pos)));
                 break;
             case Constants.STATUS_PENDING:
@@ -195,10 +195,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                     @Override
                     public void onError(Throwable e) {
                         if (e instanceof HttpException) {
-                            Toast.makeText(mContext, R.string.error_canceled, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, R.string.error_canceled, Toast.LENGTH_SHORT)
+                                    .show();
                             removeInvoice(position);
                         } else {
-                            Toast.makeText(mContext, R.string.error_server, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, R.string.error_server, Toast.LENGTH_SHORT)
+                                    .show();
                         }
                     }
                 });

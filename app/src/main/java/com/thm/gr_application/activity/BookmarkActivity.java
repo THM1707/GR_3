@@ -13,6 +13,7 @@ import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.ParkingLotsResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -25,6 +26,7 @@ public class BookmarkActivity extends AppCompatActivity {
     private List<ParkingLot> mBookmarkedList;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private BookmarkAdapter mAdapter;
+    private AVLoadingIndicatorView mFavoriteProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ public class BookmarkActivity extends AppCompatActivity {
     }
 
     private void setupVariables() {
+        mFavoriteProgress.smoothToShow();
         String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
                 Constants.SHARED_TOKEN, null);
         Disposable disposable = AppServiceClient.getMyApiInstance(this)
@@ -49,6 +52,7 @@ public class BookmarkActivity extends AppCompatActivity {
                 .subscribeWith(new DisposableSingleObserver<ParkingLotsResponse>() {
                     @Override
                     public void onSuccess(ParkingLotsResponse parkingLotsResponse) {
+                        mFavoriteProgress.smoothToHide();
                         mBookmarkedList = parkingLotsResponse.getData();
                         if (mAdapter != null) {
                             mAdapter.setBookmarkList(mBookmarkedList);
@@ -57,6 +61,7 @@ public class BookmarkActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        mFavoriteProgress.smoothToHide();
                         Toast.makeText(BookmarkActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -65,6 +70,7 @@ public class BookmarkActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        mFavoriteProgress = findViewById(R.id.progress_favorite);
         double longitude = getIntent().getDoubleExtra(Constants.EXTRA_LONGITUDE, 0);
         double latitude = getIntent().getDoubleExtra(Constants.EXTRA_LATITUDE, 0);
         Toolbar toolbar = findViewById(R.id.toolbar_account);

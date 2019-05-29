@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             case R.id.bt_login:
                 mProgressView.bringToFront();
-                mProgressView.show();
+                mProgressView.smoothToShow();
                 String username = mUsernameView.getText().toString();
                 String password = mPasswordView.getText().toString();
                 Disposable disposable = AppServiceClient.getMyApiInstance(this)
@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         .subscribeWith(new DisposableSingleObserver<CredentialResponse>() {
                             @Override
                             public void onSuccess(CredentialResponse credentialResponse) {
-                                mProgressView.hide();
+                                mProgressView.smoothToHide();
                                 storeValues(password, credentialResponse);
                                 if (credentialResponse.getRole()
                                         .equals(getString(R.string.role_user))) {
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                             @Override
                             public void onError(Throwable e) {
-                                mProgressView.hide();
+                                mProgressView.smoothToHide();
                                 if (e instanceof HttpException) {
                                     Toast.makeText(LoginActivity.this,
                                             R.string.error_bad_credential, Toast.LENGTH_SHORT)

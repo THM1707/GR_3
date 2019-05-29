@@ -24,6 +24,7 @@ import com.thm.gr_application.payload.InvoicesResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.DateUtils;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -34,7 +35,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 
 public class StatisticActivity extends AppCompatActivity {
-
+    private AVLoadingIndicatorView mStatsProgress;
     private List<Invoice> mInvoiceList;
     private LineChartView mBillChart;
     private BarChartView mIncomeChart;
@@ -65,6 +66,7 @@ public class StatisticActivity extends AppCompatActivity {
         }
         mBillChart = findViewById(R.id.bill_chart);
         mIncomeChart = findViewById(R.id.income_chart);
+        mStatsProgress = findViewById(R.id.progress_stats);
     }
 
     private void getData() {
@@ -77,6 +79,7 @@ public class StatisticActivity extends AppCompatActivity {
                 .subscribeWith(new DisposableSingleObserver<InvoicesResponse>() {
                     @Override
                     public void onSuccess(InvoicesResponse invoicesResponse) {
+                        mStatsProgress.smoothToHide();
                         mInvoiceList = invoicesResponse.getData();
                         initLabelsAndValues();
                         populateData();
@@ -84,6 +87,7 @@ public class StatisticActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
+                        mStatsProgress.smoothToHide();
                         Toast.makeText(StatisticActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }

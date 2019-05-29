@@ -16,6 +16,15 @@
         android:elevation="4dp"
         tools:targetApi="lollipop" />
 
+    <com.wang.avi.AVLoadingIndicatorView
+        android:visibility="gone"
+        android:id="@+id/progress_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/accent"
+        style="@style/AVLoadingIndicatorView"
+        android:layout_gravity="center"
+        />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_bookmark"
         android:layout_width="match_parent"

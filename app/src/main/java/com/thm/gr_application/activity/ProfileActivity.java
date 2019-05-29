@@ -23,6 +23,7 @@ import com.thm.gr_application.payload.ProfileRequest;
 import com.thm.gr_application.payload.ProfileResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -42,6 +43,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private RadioButton mMaleRadio;
     private RadioButton mFemaleRadio;
     private ImageButton mEditButton;
+    private AVLoadingIndicatorView mProfileProgress;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private String mName;
     private String mPhone;
@@ -64,6 +66,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 .subscribeWith(new DisposableSingleObserver<ProfileResponse>() {
                     @Override
                     public void onSuccess(ProfileResponse profileResponse) {
+                        mProfileProgress.smoothToHide();
                         mUsernameText.setText(profileResponse.getUsername());
                         mEmailText.setText(profileResponse.getEmail());
                         mNameText.setText(profileResponse.getName());
@@ -81,6 +84,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
                     @Override
                     public void onError(Throwable e) {
+                        mProfileProgress.smoothToHide();
                         Toast.makeText(ProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT)
                                 .show();
                     }
@@ -96,6 +100,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             actionBar.setTitle("Profile");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        mProfileProgress = findViewById(R.id.progress_profile);
         mGenderImage = findViewById(R.id.iv_gender);
         mGroup = findViewById(R.id.group);
         mOldPasswordText = findViewById(R.id.et_old_password);
@@ -154,6 +159,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private void changeProfile(ProfileRequest request) {
         String token = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE).getString(
                 Constants.SHARED_TOKEN, null);
+        mProfileProgress.smoothToShow();
         Disposable disposable = AppServiceClient.getMyApiInstance(this)
                 .changeProfile(token, request)
                 .subscribeOn(Schedulers.io())
@@ -161,6 +167,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 .subscribeWith(new DisposableSingleObserver<MessageResponse>() {
                     @Override
                     public void onSuccess(MessageResponse messageResponse) {
+                        mProfileProgress.smoothToHide();
                         mGenderImage.setImageResource(request.getGender() == 0 ? R.drawable.ic_male
                                 : R.drawable.ic_female);
                         mName = request.getName();
@@ -179,6 +186,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
                     @Override
                     public void onError(Throwable e) {
+                        mProfileProgress.smoothToHide();
                         if (e instanceof HttpException) {
                             if (((HttpException) e).code() == 404) {
                                 Toast.makeText(ProfileActivity.this, R.string.error_wrong_password,

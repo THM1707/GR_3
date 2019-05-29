@@ -5,6 +5,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.thm.gr_application.payload.ParkingLotResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.NumberUtils;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -27,11 +29,13 @@ public class PropertyInfoActivity extends AppCompatActivity implements View.OnCl
 
     private ParkingLot mProperty;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private AVLoadingIndicatorView mDetailsProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager_details);
+        mDetailsProgress = findViewById(R.id.progress_details);
         getData();
     }
 
@@ -46,13 +50,16 @@ public class PropertyInfoActivity extends AppCompatActivity implements View.OnCl
                 .subscribeWith(new DisposableSingleObserver<ParkingLotResponse>() {
                     @Override
                     public void onSuccess(ParkingLotResponse parkingLotResponse) {
+                        mDetailsProgress.smoothToHide();
                         mProperty = parkingLotResponse.getData();
                         initViews();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        mDetailsProgress.smoothToHide();
+                        Toast.makeText(PropertyInfoActivity.this, R.string.error_server,
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
         mCompositeDisposable.add(disposable);

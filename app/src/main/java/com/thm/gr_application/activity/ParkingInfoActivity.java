@@ -53,7 +53,6 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
     private float mDistance;
     private Long mId;
     private AVLoadingIndicatorView mProgressView;
-    private Button mBookButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +64,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onResume() {
         super.onResume();
+        mProgressView = findViewById(R.id.progress_details);
         initCarList();
         getData();
     }
@@ -77,6 +77,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
                 .subscribeWith(new DisposableSingleObserver<ParkingLotResponse>() {
                     @Override
                     public void onSuccess(ParkingLotResponse parkingLotResponse) {
+                        mProgressView.smoothToHide();
                         if (parkingLotResponse.getMessage().equals("Is Favorite")) {
                             isFavorite = true;
                         } else if (parkingLotResponse.getMessage().equals("Not Favorite")) {
@@ -88,6 +89,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
 
                     @Override
                     public void onError(Throwable e) {
+                        mProgressView.smoothToHide();
                         Toast.makeText(ParkingInfoActivity.this, R.string.error_server,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -126,7 +128,6 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void initViews() {
-        mProgressView = findViewById(R.id.progress_details);
         TextView textCapacity = findViewById(R.id.tv_capacity);
         TextView textAddress = findViewById(R.id.tv_address);
         TextView textActiveTime = findViewById(R.id.tv_active_time);
@@ -145,10 +146,10 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
             actionBar.setTitle(mParkingLot.getName());
         }
         findViewById(R.id.bt_navigate).setOnClickListener(this);
-        mBookButton = findViewById(R.id.bt_booking);
-        mBookButton.setOnClickListener(this);
+        Button bookButton = findViewById(R.id.bt_booking);
+        bookButton.setOnClickListener(this);
         if (mParkingLot.getType() == 0) {
-            mBookButton.setEnabled(false);
+            bookButton.setEnabled(false);
         }
         if (mParkingLot.getStar() != 0f) {
             textStar.setText(String.format(Locale.getDefault(), "%.1f", mParkingLot.getStar()));
@@ -284,7 +285,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
             builder.setView(layout);
             AlertDialog dialog = builder.create();
             layout.findViewById(R.id.bt_booking).setOnClickListener(v -> {
-                mProgressView.show();
+                mProgressView.smoothToShow();
                 Disposable disposable = AppServiceClient.getMyApiInstance(this)
                         .requestBooking(mToken, mParkingLot.getId(),
                                 carSpinner.getSelectedItem().toString(),
@@ -294,7 +295,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
                         .subscribeWith(new DisposableSingleObserver<InvoiceResponse>() {
                             @Override
                             public void onSuccess(InvoiceResponse invoiceResponse) {
-                                mProgressView.hide();
+                                mProgressView.smoothToHide();
                                 Toast.makeText(ParkingInfoActivity.this,
                                         R.string.message_booking_success, Toast.LENGTH_SHORT)
                                         .show();
@@ -302,7 +303,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
 
                             @Override
                             public void onError(Throwable e) {
-                                mProgressView.hide();
+                                mProgressView.smoothToHide();
                                 if (e instanceof HttpException) {
                                     try {
                                         JSONObject jObjError = new JSONObject(

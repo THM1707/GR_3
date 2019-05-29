@@ -16,13 +16,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
-        <activity android:name=".activity.DemoActivity">
-
-        </activity>
         <activity android:name=".activity.HistoryActivity"/>
         <activity android:name=".activity.RechargeActivity"/>
         <activity android:name=".activity.SearchActivity"/>
-        <activity android:name=".activity.FirebaseActivity"/>
         <activity android:name=".activity.PropertyInfoActivity"/>
         <activity android:name=".activity.StatisticActivity"/>
         <activity android:name=".activity.InvoiceHistoryActivity"/>
@@ -30,7 +26,6 @@
         <activity android:name=".activity.ReviewActivity"/>
         <activity android:name=".activity.PendingActivity"/>
         <activity android:name=".activity.ProfileActivity"/>
-        <activity android:name=".activity.NavDrawerActivity"/>
         <activity android:name=".activity.CarActivity"/>
 
         <meta-data

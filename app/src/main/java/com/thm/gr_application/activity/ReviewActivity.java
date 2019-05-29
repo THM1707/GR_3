@@ -28,6 +28,7 @@ import com.thm.gr_application.payload.ReviewsResponse;
 import com.thm.gr_application.retrofit.AppServiceClient;
 import com.thm.gr_application.utils.Constants;
 import com.thm.gr_application.utils.DateUtils;
+import com.wang.avi.AVLoadingIndicatorView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -52,6 +53,7 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
     private TextView mPromptText;
     private Long mParkingLotId;
     private boolean isManager;
+    private AVLoadingIndicatorView mReviewProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,7 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
                 .subscribeWith(new DisposableSingleObserver<ReviewsResponse>() {
                     @Override
                     public void onSuccess(ReviewsResponse reviewsResponse) {
+                        mReviewProgress.smoothToHide();
                         mReviewList = reviewsResponse.getData();
                         if (mReviewList.isEmpty()) {
                             mPromptText.setText(R.string.prompt_no_review);
@@ -106,6 +109,7 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
 
                     @Override
                     public void onError(Throwable e) {
+                        mReviewProgress.smoothToHide();
                         if (e instanceof HttpException) {
                             Toast.makeText(ReviewActivity.this, ((HttpException) e).message(),
                                     Toast.LENGTH_SHORT).show();
@@ -131,6 +135,7 @@ public class ReviewActivity extends AppCompatActivity implements View.OnClickLis
         if (isManager) {
             groupOwnReview.setVisibility(View.GONE);
         }
+        mReviewProgress = findViewById(R.id.progress_review);
         mPromptText = findViewById(R.id.tv_review_prompt);
         mCommentText = findViewById(R.id.tv_comment);
         mCommentText.setOnClickListener(this);

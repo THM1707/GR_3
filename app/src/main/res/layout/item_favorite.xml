@@ -5,9 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
-    android:elevation="6dp"
-    app:cardCornerRadius="5dp"
-    tools:targetApi="lollipop">
+    app:cardElevation="4dp"
+    app:cardCornerRadius="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="216dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:id="@+id/iv_favorite"
@@ -49,7 +48,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="@string/title_slot"
+                android:hint="@string/title_slot"
                 android:textColor="@color/white"
                 android:textSize="22sp" />
 
@@ -60,7 +59,6 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="16dp"
                 android:layout_toStartOf="@id/tv_slot"
-                android:hint="@string/hint_capacity"
                 android:layout_marginEnd="8dp"
                 android:textColor="@color/white"
                 android:textSize="36sp"

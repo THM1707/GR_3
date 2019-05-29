@@ -9,6 +9,7 @@
     >
 
     <com.wang.avi.AVLoadingIndicatorView
+        app:indicatorColor="@color/primary"
         android:id="@+id/progress_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,7 +20,8 @@
         android:layout_marginStart="180dp"
         android:layout_marginTop="230dp"
         android:visibility="invisible"
-        app:indicatorName="PacmanIndicator"
+        app:indicatorName="BallPulseIndicator"
+        style="@style/AVLoadingIndicatorView"
         />
 
     <ImageView
@@ -97,8 +99,8 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/il_password"
         android:layout_marginEnd="32dp"
-        android:layout_marginTop="32dp"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/rounded_button"
         android:fontFamily="sans-serif"
         android:padding="8dp"
