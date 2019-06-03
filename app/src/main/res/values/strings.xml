@@ -153,4 +153,10 @@
     <string name="error_unknow">Something happened</string>
     <string name="hint_default_value">~</string>
     <string name="action_edit">Edit</string>
+    <string name="title_gender">Gender</string>
+    <string name="error_invalid_info">Invalid information</string>
+    <string name="action_submit">Submit</string>
+    <string name="hint_comment">Your comment</string>
+    <string name="prompt_tell_other">Tell others what you think</string>
+    <string name="prompt_rate">Rate this parking lot</string>
 </resources>

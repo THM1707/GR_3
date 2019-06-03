@@ -92,7 +92,7 @@
             />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -101,13 +101,11 @@
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        android:background="@drawable/rounded_button"
-        android:fontFamily="sans-serif"
         android:padding="8dp"
         android:text="@string/action_sign_in"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:textStyle="normal|bold"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         />
 
     <TextView

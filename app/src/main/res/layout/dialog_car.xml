@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
     <TextView
         android:layout_width="match_parent"
@@ -13,7 +14,8 @@
         android:gravity="center"
         android:text="@string/prompt_add_vehicle"
         android:textColor="@color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -24,15 +26,17 @@
         android:fontFamily="@font/rubik"
         android:padding="8dp"
         android:text="@string/title_license_plate"
-        android:textSize="20sp" />
+        android:textSize="18sp"
+        />
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginStart="16dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_plate"
@@ -40,8 +44,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:inputType="text"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp" />
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -52,16 +57,17 @@
         android:fontFamily="@font/rubik"
         android:padding="8dp"
         android:text="@string/title_car_type"
-        android:textSize="20sp" />
+        android:textSize="18sp"
+        />
 
     <RadioGroup
         android:id="@+id/rg_car_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="8dp"
+        >
 
         <RadioButton
             android:id="@+id/rb_car"
@@ -69,7 +75,8 @@
             android:layout_height="70dp"
             android:background="@drawable/bg_radio_button_car"
             android:button="@android:color/transparent"
-            android:checked="true" />
+            android:checked="true"
+            />
 
         <RadioButton
             android:id="@+id/rb_van"
@@ -77,7 +84,8 @@
             android:layout_height="70dp"
             android:layout_marginStart="32dp"
             android:background="@drawable/bg_radio_button_van"
-            android:button="@android:color/transparent" />
+            android:button="@android:color/transparent"
+            />
 
         <RadioButton
             android:id="@+id/rb_bus"
@@ -85,18 +93,20 @@
             android:layout_height="70dp"
             android:layout_marginStart="32dp"
             android:background="@drawable/bg_radio_button_bus"
-            android:button="@android:color/transparent" />
+            android:button="@android:color/transparent"
+            />
     </RadioGroup>
 
-    <Button
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="end"
-        android:layout_marginEnd="32dp"
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_add_car"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="32dp"
         android:text="@string/action_add"
-        android:textColor="@color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        />
 </LinearLayout>

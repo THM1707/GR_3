@@ -174,7 +174,7 @@ public class MapsActivity extends AppCompatActivity
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(
                                 ImageUtils.getParkingBitmapFromVectorDrawable(MapsActivity.this,
                                         parkingData.getAvailable() == 0 ? R.drawable.ic_marker
-                                                : R.drawable.ic_marker_2)));
+                                                : R.drawable.ic_logo)));
                     }
                 }
             }
@@ -210,7 +210,7 @@ public class MapsActivity extends AppCompatActivity
                 .icon(BitmapDescriptorFactory.fromBitmap(
                         ImageUtils.getParkingBitmapFromVectorDrawable(this,
                                 parkingData.getAvailable() == 0 ? R.drawable.ic_marker
-                                        : R.drawable.ic_marker_2))));
+                                        : R.drawable.ic_logo))));
         if (parkingData.getType() == 0) {
             m.setIcon(BitmapDescriptorFactory.fromBitmap(
                     ImageUtils.getParkingBitmapFromVectorDrawable(this, R.drawable.ic_marker_3)));
@@ -248,9 +248,7 @@ public class MapsActivity extends AppCompatActivity
         FloatingActionButton searchFab = findViewById(R.id.fab_search);
         FloatingActionButton locationFab = findViewById(R.id.fab_my_location);
         locationFab.setOnClickListener(this);
-        locationFab.setColorFilter(Color.WHITE);
         searchFab.setOnClickListener(this);
-        searchFab.setColorFilter(Color.WHITE);
         findViewById(R.id.bt_nearest).setOnClickListener(this);
         findViewById(R.id.bt_navigation_drawer).setOnClickListener(this);
         setupNavigationDrawer();
@@ -461,7 +459,7 @@ public class MapsActivity extends AppCompatActivity
                             marker.setIcon(BitmapDescriptorFactory.fromBitmap(
                                     ImageUtils.getParkingBitmapFromVectorDrawable(MapsActivity.this,
                                             parkingData.getType() == 0 ? R.drawable.ic_marker_3
-                                                    : R.drawable.ic_marker_2)));
+                                                    : R.drawable.ic_logo)));
                         }
                     }
                     mSearchResultMap.clear();

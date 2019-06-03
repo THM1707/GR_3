@@ -12,13 +12,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        tools:targetApi="lollipop"
         />
 
     <androidx.cardview.widget.CardView
@@ -37,7 +35,7 @@
         <include layout="@layout/content_pending"/>
     </androidx.cardview.widget.CardView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,9 +44,10 @@
         android:text="@string/action_cancel"
         app:layout_constraintEnd_toEndOf="@id/card_pending"
         app:layout_constraintTop_toBottomOf="@id/card_pending"
+        style="@style/Widget.MaterialComponents.Button"
         />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_change"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,6 +56,7 @@
         android:text="@string/action_change"
         app:layout_constraintEnd_toStartOf="@id/bt_cancel"
         app:layout_constraintTop_toBottomOf="@id/card_pending"
+        style="@style/Widget.MaterialComponents.Button"
         />
 
     <LinearLayout

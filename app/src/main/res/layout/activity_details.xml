@@ -242,7 +242,7 @@
         style="@style/AVLoadingIndicatorView"
         />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_navigate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -250,14 +250,15 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:text="@string/action_navigate"
+        app:icon="@drawable/ic_navigation_24dp"
         app:layout_constraintEnd_toStartOf="@+id/bt_booking"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_price"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton.Icon"
         />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_booking"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -266,8 +267,9 @@
         android:text="@string/action_booking"
         app:layout_constraintBaseline_toBaselineOf="@+id/bt_navigate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/bt_navigate"
+        app:icon="@drawable/ic_event_available_24dp"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton.Icon"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

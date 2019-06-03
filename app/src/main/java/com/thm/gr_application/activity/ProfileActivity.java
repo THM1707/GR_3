@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,7 +43,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private ImageView mGenderImage;
     private RadioButton mMaleRadio;
     private RadioButton mFemaleRadio;
-    private ImageButton mEditButton;
+    private Button mEditButton;
     private AVLoadingIndicatorView mProfileProgress;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     private String mName;
@@ -191,6 +192,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                             if (((HttpException) e).code() == 404) {
                                 Toast.makeText(ProfileActivity.this, R.string.error_wrong_password,
                                         Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(ProfileActivity.this, R.string.error_invalid_info, Toast.LENGTH_SHORT)
+                                        .show();
                             }
                         } else {
                             Toast.makeText(ProfileActivity.this, R.string.error_server,

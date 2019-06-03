@@ -135,7 +135,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("Pending booking");
+            actionBar.setTitle("Pending reservation");
         }
         mGroup = findViewById(R.id.group_invoice);
         mEmptyText = findViewById(R.id.tv_empty);

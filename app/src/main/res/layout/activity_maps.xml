@@ -23,8 +23,8 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="40dp"
-        app:cardCornerRadius="4dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="2dp"
         >
 
         <LinearLayout
@@ -34,7 +34,6 @@
             android:divider="?android:listDivider"
             android:gravity="center"
             android:orientation="horizontal"
-            android:showDividers="middle"
             >
 
             <ImageButton
@@ -43,11 +42,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:background="@android:color/transparent"
                 android:clickable="true"
                 android:focusable="true"
-                app:srcCompat="@drawable/ic_menu"
+                app:srcCompat="@drawable/ic_menu_black_24dp"
                 tools:ignore="ContentDescription"
                 />
 
@@ -65,39 +64,40 @@
         android:id="@+id/fab_my_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_above="@id/bt_nearest"
+        android:layout_alignParentEnd="true"
         android:layout_marginEnd="32dp"
-        app:backgroundTint="@color/colorAccent"
-        android:clickable="true"
-        android:focusable="true"
-        app:srcCompat="@drawable/ic_navigation"
+        app:backgroundTint="@color/white"
+        app:tint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_my_location_24dp"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
         />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_above="@id/fab_my_location"
-        android:layout_marginBottom="16dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="32dp"
-        app:backgroundTint="@color/colorAccent"
-        android:clickable="true"
-        android:focusable="true"
-        map:srcCompat="@drawable/ic_search_24dp"
+        app:backgroundTint="@color/accent"
+        app:tint="@color/white"
+        app:srcCompat="@drawable/ic_search_24dp"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
         />
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_nearest"
-        android:textSize="16sp"
-        android:text="@string/action_nearest"
-        android:padding="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:text="@string/action_nearest"
+        android:textSize="16sp"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         />
 </RelativeLayout>
 

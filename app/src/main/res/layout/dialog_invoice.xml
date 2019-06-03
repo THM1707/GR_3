@@ -26,7 +26,7 @@
         android:fontFamily="@font/rubik"
         android:padding="8dp"
         android:text="@string/title_license_plate"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
 
     <com.google.android.material.textfield.TextInputLayout
@@ -47,14 +47,14 @@
             android:inputType="text|textCapCharacters" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/action_add"
-        android:textColor="@color/white"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:textSize="18sp" />
 </LinearLayout>

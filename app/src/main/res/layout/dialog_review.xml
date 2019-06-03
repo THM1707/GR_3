@@ -13,7 +13,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/rubik"
-        android:text="Rate this parking lot"
+        android:text="@string/prompt_rate"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,20 +23,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Tell others what you think"
+        android:text="@string/prompt_tell_other"
         app:layout_constraintStart_toStartOf="@+id/textView24"
         app:layout_constraintTop_toBottomOf="@+id/textView24"
         />
 
     <RatingBar
-        android:stepSize="1"
-        android:numStars="5"
         android:id="@+id/own_rating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:numStars="5"
+        android:stepSize="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView25"
@@ -58,20 +58,21 @@
             android:id="@+id/et_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Comment"
+            android:hint="@string/hint_comment"
             android:lines="2"
             />
     </com.google.android.material.textfield.TextInputLayout>
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_submit"
-        android:layout_width="94dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:text="Submit"
+        android:text="@string/action_submit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textInputLayout8"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout8"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

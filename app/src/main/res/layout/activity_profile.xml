@@ -92,7 +92,6 @@
             android:id="@+id/et_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/md_blue_grey_50"
             />
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
@@ -102,7 +101,6 @@
         android:layout_marginEnd="24dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
@@ -113,7 +111,6 @@
             android:id="@+id/et_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/md_blue_grey_50"
             />
     </com.google.android.material.textfield.TextInputLayout>
     <androidx.constraintlayout.widget.Guideline
@@ -201,19 +198,18 @@
             />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/ib_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="24dp"
-        android:background="@android:color/transparent"
+        android:layout_marginTop="16dp"
+        android:text="@string/action_edit"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintEnd_toEndOf="@+id/textInputLayout3"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"
-        app:srcCompat="@drawable/ic_edit"
-        tools:ignore="ContentDescription"
         />
     <ImageButton
         android:id="@+id/ib_done"
