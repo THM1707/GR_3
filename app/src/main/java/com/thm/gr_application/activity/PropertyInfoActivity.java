@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.thm.gr_application.R;
 import com.thm.gr_application.model.ParkingLot;
 import com.thm.gr_application.payload.ParkingLotResponse;
@@ -89,6 +90,7 @@ public class PropertyInfoActivity extends AppCompatActivity implements View.OnCl
         if (mProperty.getImage() != null) {
             Glide.with(this)
                     .load(Constants.END_POINT_URL + "/api/image/" + mProperty.getImage().getId())
+                    .apply(new RequestOptions().placeholder(R.drawable.no_image).fitCenter())
                     .into(imageView);
         } else {
             imageView.setImageResource(R.drawable.parking_lot);

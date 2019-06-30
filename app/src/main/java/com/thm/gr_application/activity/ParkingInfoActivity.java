@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.thm.gr_application.R;
 import com.thm.gr_application.data.CarDatabase;
 import com.thm.gr_application.model.Car;
@@ -155,8 +156,13 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
             textStar.setText(String.format(Locale.getDefault(), "%.1f", mParkingLot.getStar()));
         }
         textStar.setOnClickListener(this);
-        textAvailable.setText(String.format(Locale.getDefault(), "%d left",
-                mParkingLot.getCapacity() - mParkingLot.getCurrent()));
+        if (mParkingLot.getType() == 0) {
+            textAvailable.setText(
+                    String.format(Locale.getDefault(), "%d slots", mParkingLot.getCapacity()));
+        } else {
+            textAvailable.setText(String.format(Locale.getDefault(), "%d left",
+                    mParkingLot.getCapacity() - mParkingLot.getCurrent()));
+        }
         textCapacity.setText(String.valueOf(mParkingLot.getCapacity()));
         textAddress.setText(mParkingLot.getAddress());
         textActiveTime.setText(getActiveTimeText());
@@ -165,6 +171,7 @@ public class ParkingInfoActivity extends AppCompatActivity implements View.OnCli
         if (mParkingLot.getImage() != null) {
             Glide.with(this)
                     .load(Constants.END_POINT_URL + "/api/image/" + mParkingLot.getImage().getId())
+                    .apply(new RequestOptions().placeholder(R.drawable.no_image).fitCenter())
                     .into(imageView);
         } else {
             imageView.setImageResource(R.drawable.parking_lot);

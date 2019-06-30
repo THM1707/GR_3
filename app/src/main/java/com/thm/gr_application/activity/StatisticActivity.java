@@ -148,6 +148,7 @@ public class StatisticActivity extends AppCompatActivity {
         int[] order = { 5, 4, 3, 2, 1, 0 };
         mIncomeChart.setXAxis(false)
                 .setYAxis(false)
+                .setStep(100000)
                 .setTooltips(mIncomeTip)
                 .show(new Animation().inSequence(.5f, order));
     }

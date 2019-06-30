@@ -31,7 +31,7 @@ public class DateUtils {
             case 5:
                 return "May";
             case 6:
-                return "Jan";
+                return "Jun";
             case 7:
                 return "Jul";
             case 8:
@@ -45,7 +45,7 @@ public class DateUtils {
             case 12:
                 return "Dec";
             default:
-                return "LAME";
+                return "NONE";
         }
     }
 }
